@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f6f2">
+    <title>Set Padel — Reserve sua quadra</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Set Padel, início">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>set<span class="brand-light">padel</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a class="nav-link active" href="#quadras">Quadras</a>
+        <a class="nav-link" href="#reservas">Minhas reservas <span class="nav-count" id="reservation-count">0</span></a>
+      </nav>
+      <button class="profile-button" type="button" aria-label="Perfil de Rafa">RA</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot"></span> SEU PRÓXIMO JOGO COMEÇA AQUI</p>
+          <h1>Uma quadra.<br>Uma galera.<br><span>Partiu jogar.</span></h1>
+          <p class="hero-description">Encontre seu horário, chame o time e deixe o resto com a gente.</p>
+          <a class="hero-link" href="#quadras">Encontrar uma quadra <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-art" aria-label="Ilustração de uma quadra de padel">
+          <div class="art-sun"></div>
+          <div class="court-illustration">
+            <div class="court-glass"></div>
+            <div class="court-floor"></div>
+            <div class="court-lines"><span></span><span></span><i></i></div>
+            <div class="court-net"></div>
+            <div class="ball"><span></span></div>
+          </div>
+          <div class="art-label"><span>01</span> JOGO BOM É JOGO MARCADO</div>
+        </div>
+      </section>
+
+      <section class="booking-section" id="quadras">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ESCOLHA O SEU JOGO</p>
+            <h2>Quadras por perto</h2>
+          </div>
+          <p class="section-note">São Paulo, SP <span aria-hidden="true">⌄</span></p>
+        </div>
+
+        <div class="filters" aria-label="Filtros de quadras">
+          <label class="filter-control">
+            <span class="filter-icon" aria-hidden="true">⌖</span>
+            <span class="filter-label">LOCALIZAÇÃO</span>
+            <select id="location-filter" aria-label="Localização">
+              <option value="all">São Paulo, SP</option>
+              <option value="pinheiros">Pinheiros</option>
+              <option value="vila-mariana">Vila Mariana</option>
+              <option value="itaim">Itaim Bibi</option>
+            </select>
+          </label>
+          <label class="filter-control date-control">
+            <span class="filter-icon" aria-hidden="true">▦</span>
+            <span class="filter-label">DATA DO JOGO</span>
+            <input id="booking-date" type="date" aria-label="Data do jogo">
+          </label>
+          <div class="filter-hint"><span aria-hidden="true">✦</span> Escolha um horário para reservar</div>
+        </div>
+
+        <div class="court-grid" id="court-list" aria-live="polite"></div>
+      </section>
+
+      <section class="reservations-section" id="reservas">
+        <div class="section-heading reservation-heading">
+          <div>
+            <p class="eyebrow">SEU CALENDÁRIO</p>
+            <h2>Minhas reservas <span id="reservation-heading-count" class="heading-count">0</span></h2>
+          </div>
+          <span class="upcoming-label">PRÓXIMOS JOGOS</span>
+        </div>
+        <div id="reservation-list" class="reservation-list"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <a class="brand footer-brand" href="#"><span class="brand-mark" aria-hidden="true">S</span><span>set<span class="brand-light">padel</span></span></a>
+      <span>Feito para quem vive pelo próximo set.</span>
+      <span>© 2025 SET PADEL</span>
+    </footer>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
