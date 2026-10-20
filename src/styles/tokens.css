@@ -1,0 +1,98 @@
+/* Marca Quilombo: tinta azul noche, tiza cálida y naranja de pelota. Títulos en Barlow Condensed (itálica, mayúsculas),
+   texto en Barlow. Las fuentes van empaquetadas (funcionan sin internet).
+   Los colores "fiesta" son sólidos y saturados (canchas, pelota, marcador); el texto encima va en --q-fiesta-tinta (blanco).
+   Lo comparten las tres apps: jugador (index), club (club.html) y mesero (mesero.html). */
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow/700.css';
+@import '@fontsource/barlow/800.css';
+@import '@fontsource/barlow-condensed/700.css';
+@import '@fontsource/barlow-condensed/800-italic.css';
+@import '@fontsource/barlow-condensed/900-italic.css';
+
+:root {
+  --q-fiesta-lila: #3346a8; /* azul profundo */
+  --q-fiesta-rosa: #e8475b; /* rojo marcador */
+  --q-fiesta-naranja: #c2410c; /* ladrillo */
+  --q-fiesta-cielo: #1e7fd0; /* azul cancha */
+  --q-fiesta-amarillo: #b98500; /* dorado trofeo */
+  --q-fiesta-menta: #18895b; /* verde cancha */
+  --q-fiesta-lima: var(--q-acc); /* lo seleccionado */
+  --q-fiesta-tinta: #ffffff;
+  --q-naranja: #ff5b1f;
+  --q-azul: #1e7fd0;
+  --q-verde: #18895b;
+  --q-noche: #0e1b33;
+  --q-font: 'Barlow', -apple-system, system-ui, 'Helvetica Neue', sans-serif;
+  --q-font-fiesta: 'Barlow', -apple-system, system-ui, sans-serif;
+  --q-font-titulo: 'Barlow Condensed', 'Barlow', -apple-system, system-ui, sans-serif;
+
+  --q-bg: #f4f2ec;
+  --q-bg2: #f4f2ec;
+  --q-card: #ffffff;
+  --q-sub: #e9e6de;
+  --q-elev: #ffffff;
+  --q-line: rgba(14, 27, 51, 0.1);
+  --q-borde: rgba(14, 27, 51, 0.14);
+  --q-glassline: rgba(14, 27, 51, 0.1);
+  --q-tx: #0e1b33;
+  --q-tx2: #5b6478;
+  --q-tx3: #9aa1b0;
+  /* Acento: UNA variable con 4 opciones (azul cancha por defecto; el cliente aún decide). Se cambia con
+     html[data-acento] desde $lib/ui/acento.svelte.ts y se sincroniza en vivo entre equipos en la demo.
+     --q-acc fondos/bordes · --q-acct texto sobre claro · --q-accd sobre azul noche · --q-accs tinte */
+  --q-acc: #1e7fd0;
+  --q-acct: #1a6fb8;
+  --q-accd: #2f8fe0;
+  --q-accs: rgba(30, 127, 208, 0.12);
+  --q-acctx: #ffffff;
+  --q-link: var(--q-acct);
+  /* Fijos (no cambian con el acento) */
+  --q-rojo: #e8475b;
+  --q-dorado: #b98500;
+  --q-ladrillo: #c2410c;
+  --q-lila: #3346a8;
+  --q-clase: #5b4fd0;
+  --q-alr: #d42a3a;
+  --q-wrn: #a86b00;
+  --q-wrnbg: #ffe9b8;
+  --q-ok: #18895b;
+
+  --q-r-lg: 14px;
+  --q-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --q-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --q-dur-fast: 150ms;
+  --q-dur: 240ms;
+  --q-tabbar-h: 58px;
+}
+
+html.dark {
+  --q-bg: #0a1226;
+  --q-bg2: #0a1226;
+  --q-card: #111c36;
+  --q-sub: #1b2847;
+  --q-elev: #13203d;
+  --q-line: rgba(220, 230, 255, 0.09);
+  --q-borde: rgba(220, 230, 255, 0.14);
+  --q-glassline: rgba(220, 230, 255, 0.12);
+  --q-tx: #f1f4fa;
+  --q-tx2: #93a0bc;
+  --q-tx3: #5d6a86;
+  --q-link: var(--q-accd);
+  --q-alr: #ff5c6a;
+  --q-wrn: #ffc247;
+  --q-wrnbg: rgba(255, 194, 71, 0.16);
+  --q-ok: #3ccf8e;
+  --q-fiesta-lila: #4a5fd0;
+  --q-fiesta-cielo: #2f8fe0;
+}
+
+html[data-acento='naranja'] { --q-acc: #ff5b1f; --q-acct: #e04a12; --q-accd: #ff5b1f; --q-accs: rgba(255, 91, 31, 0.12); }
+html[data-acento='verde'] { --q-acc: #18895b; --q-acct: #147a50; --q-accd: #3ccf8e; --q-accs: rgba(24, 137, 91, 0.12); }
+html[data-acento='noche'] { --q-acc: #0e1b33; --q-acct: #0e1b33; --q-accd: #f4f2ec; --q-accs: rgba(14, 27, 51, 0.08); }
+html.dark[data-acento='noche'] { --q-acc: #f1f4fa; --q-acctx: #0e1b33; --q-acct: #f1f4fa; --q-accs: rgba(241, 244, 250, 0.1); }
+html.dark { --q-acct: var(--q-accd); }
+
+/* Framework7 lee sus colores de aquí */
+:root { --f7-theme-color: var(--q-acc); --f7-page-bg-color: var(--q-bg); --f7-navbar-bg-color: var(--q-bg); --f7-navbar-text-color: var(--q-tx); --f7-navbar-link-color: var(--q-link); --f7-bars-bg-color: var(--q-bg); --f7-sheet-bg-color: var(--q-elev); --f7-font-family: var(--q-font); }

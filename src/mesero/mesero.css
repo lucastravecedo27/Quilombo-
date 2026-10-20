@@ -1,0 +1,42 @@
+/* Base de la app del mesero: claro, letras grandes y botones de 48–60 px para usar con una mano.
+   El acento es una sola variable (--q-acc y variantes, ver tokens.css). */
+html, body { margin: 0; background: var(--q-bg); color: var(--q-tx); font-family: var(--q-font); -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; }
+body { overscroll-behavior-y: none; }
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-appearance: none; appearance: none; }
+button:disabled { cursor: default; }
+input, textarea { font: inherit; font-size: 16px; }
+.m-titulo { font-family: var(--q-font-titulo); font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; }
+.m-num { font-family: var(--q-font-titulo); font-style: italic; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+.m-over { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: var(--q-tx2); text-transform: uppercase; }
+
+/* Hojas inferiores */
+.m-fondo { position: fixed; inset: 0; z-index: 60; background: rgba(10, 18, 38, 0.5); animation: m-aparece 0.25s both; }
+.m-hoja { position: fixed; z-index: 61; left: 0; right: 0; bottom: 0; max-height: 90dvh; overflow-y: auto; scrollbar-width: none; padding: 0 18px calc(env(safe-area-inset-bottom, 0px) + 24px); border-radius: 24px 24px 0 0; background: var(--q-card); color: var(--q-tx); animation: m-hoja 0.38s var(--q-ease) both; }
+.m-hoja::-webkit-scrollbar { display: none; }
+.m-agarre { width: 36px; height: 5px; border-radius: 3px; background: var(--q-tx3); opacity: 0.5; margin: 8px auto 10px; }
+.m-hoja-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.m-hoja-cab > span { display: flex; flex-direction: column; min-width: 0; }
+.m-hoja-cab b.m-titulo { font-size: 30px; line-height: 1; }
+.m-hoja-cab small { margin-top: 4px; font-size: 14px; color: var(--q-tx2); }
+.m-x { flex: none; width: 44px; height: 44px; border: 0; border-radius: 22px; background: var(--q-sub); color: var(--q-tx2); font-size: 17px; font-weight: 800; }
+.m-btn { height: 60px; border: 0; border-radius: 14px; background: var(--q-acc); color: var(--q-acctx); font-size: 18px; font-weight: 900; }
+.m-btn:disabled { opacity: 0.4; }
+.m-btn.noche { background: var(--q-noche); color: #fff; }
+html.dark .m-btn.noche { background: var(--q-sub); }
+.m-btn:active:not(:disabled) { transform: scale(0.98); }
+.m-seg { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 4px; padding: 4px; border-radius: 14px; background: var(--q-sub); }
+.m-seg button { height: 42px; border: 0; border-radius: 10px; background: transparent; font-size: 14.5px; font-weight: 900; color: var(--q-tx); }
+.m-seg button.on { background: var(--q-card); box-shadow: 0 2px 8px rgba(14, 27, 51, 0.12); }
+.m-seg button:disabled { opacity: 0.4; }
+.m-error { margin: 0; color: var(--q-alr); font-weight: 700; font-size: 15px; }
+
+@keyframes m-aparece { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-hoja { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes m-sube { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes m-pop { 0% { opacity: 0; transform: scale(0.6); } 60% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes m-late { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes m-gira { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .m-fondo, .m-hoja { animation: none; }
+}

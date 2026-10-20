@@ -1,0 +1,86 @@
+/* Base y utilidades compartidas (solo las que usa el módulo social) */
+html, body { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+body { color: var(--q-tx); font-family: var(--q-font); background: var(--q-bg); }
+button { font: inherit; color: inherit; -webkit-appearance: none; appearance: none; cursor: pointer; }
+/* Framework7 pone width:100% a todo <button>; solo sus .button lo necesitan */
+button:where(:not(.button)) { width: auto; }
+.q-btn.bloque, button.q-fila { width: 100%; }
+.page { background: var(--q-bg); }
+.page-content { scrollbar-width: none; }
+.page-content::-webkit-scrollbar { display: none; }
+
+.q-num { font-family: var(--q-font-fiesta); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.q-seccion { display: flex; align-items: baseline; justify-content: space-between; padding: 22px 20px 8px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+.q-lista { background: var(--q-card); border: 0.5px solid var(--q-line); border-radius: var(--q-r-lg); margin: 0 16px 12px; overflow: hidden; }
+.q-fila { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; position: relative; background: var(--q-card); width: 100%; border: 0; text-align: left; box-sizing: border-box; color: var(--q-tx); }
+.q-fila + .q-fila::before { content: ''; position: absolute; left: 62px; right: 0; top: 0; height: 0.5px; background: var(--q-line); }
+.q-fila:active { background: var(--q-sub); }
+.q-fila .cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.q-fila .titulo { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-fila .sub { font-size: 13px; color: var(--q-tx2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.q-btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 22px; border-radius: 12px; border: 0; background: var(--q-acc); color: var(--q-acctx); font-size: 16.5px; font-weight: 900; transition: transform var(--q-dur-fast) var(--q-ease), opacity var(--q-dur-fast); }
+.q-btn:active { transform: scale(0.97); opacity: 0.9; }
+.q-btn.bloque { display: flex; width: 100%; }
+.q-btn.suave { background: var(--q-sub); color: var(--q-tx); }
+.q-btn.chico { height: 38px; padding: 0 14px; font-size: 13.5px; border-radius: 10px; }
+.q-btn:disabled { opacity: 0.4; }
+
+.q-espacio-tabbar { height: calc(var(--q-tabbar-h) + env(safe-area-inset-bottom, 0px) + 40px); }
+
+@keyframes q-sube { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes q-pop { 0% { opacity: 0; transform: scale(0.6); } 60% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes q-titilar { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.q-entra { animation: q-sube 0.42s var(--q-ease) both; }
+.q-pop { animation: q-pop 0.5s var(--q-spring) both; }
+@media (prefers-reduced-motion: reduce) { .q-entra, .q-pop { animation: none; } }
+
+/* Hojas inferiores */
+.q-agarre { width: 36px; height: 5px; border-radius: 3px; background: var(--q-tx3); opacity: 0.5; margin: 8px auto 4px; }
+.q-hoja-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 6px 20px 8px; }
+.q-hoja-cab h2 { margin: 0; font-size: 28px; font-weight: 900; line-height: 1; }
+.q-cerrar { width: 32px; height: 32px; border-radius: 16px; border: 0; background: var(--q-sub); color: var(--q-tx2); display: flex; align-items: center; justify-content: center; padding: 0; }
+.sheet-modal { background: var(--q-card); color: var(--q-tx); border-radius: 24px 24px 0 0; overflow: hidden; transition-duration: 380ms; transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+.sheet-backdrop { background: rgba(10, 18, 38, 0.45); transition-duration: 250ms; }
+
+.q-vacio { text-align: center; padding: 48px 32px; color: var(--q-tx2); font-size: 15px; }
+.q-vacio b { display: block; color: var(--q-tx); font-size: 18px; margin-bottom: 4px; }
+input.q-input, textarea.q-input, select.q-input { width: 100%; box-sizing: border-box; height: 50px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--q-sub); color: var(--q-tx); font: inherit; font-size: 17px; outline: none; }
+textarea.q-input { height: auto; padding: 12px 16px; }
+
+/* Barra de pestañas: anclada abajo, de borde a borde. 5 posiciones: Social · Jugar · [Q] · Chat · Perfil.
+   La activa en el acento (texto) con una rayita de 36 × 3 arriba. */
+.q-tabbar { position: fixed; z-index: 5500; /* sobre .views (5000), debajo de hojas y diálogos */ left: 0; right: 0; bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--q-card); border-top: 1px solid var(--q-line); transition: transform 0.25s var(--q-ease), opacity 0.2s; }
+.q-tabbar.oculta { transform: translateY(110%); opacity: 0; pointer-events: none; }
+.q-tabbar nav { display: flex; height: var(--q-tabbar-h); }
+.q-tabbar nav > button { position: relative; flex: 1; border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--q-tx2); font-family: var(--q-font-titulo); font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.q-tabbar nav > button::before { content: ''; position: absolute; top: -1px; left: 50%; width: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--q-acc); transform: translateX(-50%); transition: width var(--q-dur) var(--q-ease); }
+.q-tabbar nav > button.activo { color: var(--q-acct); }
+.q-tabbar nav > button.activo::before { width: 36px; }
+.q-tabbar .globo { position: absolute; top: 6px; right: calc(50% - 22px); min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--q-rojo); color: #fff; font-family: var(--q-font); font-size: 10px; font-weight: 800; letter-spacing: 0; display: flex; align-items: center; justify-content: center; }
+.q-centro { flex: 1; display: flex; justify-content: center; }
+.q-boton { position: relative; top: -18px; width: 62px; height: 62px; border: 0; border-radius: 20px; background: #0e1b33; color: #fff; box-shadow: 0 10px 24px rgba(14, 27, 51, 0.35), 0 0 0 4px var(--q-card); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0; transition: transform var(--q-dur-fast) var(--q-ease); }
+.q-boton:active { transform: scale(0.94); }
+.q-boton .aro { position: absolute; right: -16px; top: -16px; width: 40px; height: 40px; border-radius: 50%; border: 7px solid var(--q-accd); }
+.q-boton b { position: relative; font-family: var(--q-font-titulo); font-style: italic; font-weight: 900; font-size: 32px; line-height: 1; }
+html.dark .q-boton { box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 0 4px var(--q-card), inset 0 0 0 1px rgba(220, 230, 255, 0.14); }
+
+/* Títulos de la marca: condensada, itálica y en mayúsculas */
+.page h1, .page h2, .q-hoja-cab h2, .q-seccion, .q-titulo { font-family: var(--q-font-titulo); font-style: italic; text-transform: uppercase; letter-spacing: 0.005em; }
+.q-marca { font-family: var(--q-font-titulo); font-style: italic; font-weight: 900; letter-spacing: 0.14em; color: var(--q-acct); text-transform: uppercase; }
+/* Overline: etiqueta pequeña en mayúsculas */
+.q-over { font-size: 11.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--q-tx2); }
+/* Título de sección (h2) 800 italic 22 px */
+.q-h2 { margin: 24px 20px 10px; font-family: var(--q-font-titulo); font-style: italic; font-weight: 800; font-size: 22px; text-transform: uppercase; line-height: 1.1; }
+/* Botón circular de volver (overlays) */
+.q-volver { width: 40px; height: 40px; flex: none; border: 0; border-radius: 20px; background: var(--q-sub); color: var(--q-tx); display: flex; align-items: center; justify-content: center; padding: 0; }
+@keyframes q-ov { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes q-pulso { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes q-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes q-gira { to { transform: rotate(360deg); } }
+@keyframes q-brillo { 0% { transform: translateX(-160%) rotate(20deg); } 60%, 100% { transform: translateX(420%) rotate(20deg); } }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }
+
+/* Barra superior sólida (la translúcida de iOS dejaba ver los títulos de abajo al hacer scroll) */
+.navbar:not(.navbar-transparent) .navbar-bg { background: var(--q-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }

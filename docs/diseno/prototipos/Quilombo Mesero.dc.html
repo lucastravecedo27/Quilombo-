@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Quilombo · App del mesero</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+@font-face{font-family:'Barlow';src:url(fonts/barlow-400.woff2) format('woff2');font-weight:400}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-600.woff2) format('woff2');font-weight:600}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-700.woff2) format('woff2');font-weight:700}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-800.woff2) format('woff2');font-weight:800 900}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-700.woff2) format('woff2');font-weight:700;font-style:normal}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-800i.woff2) format('woff2');font-weight:800;font-style:italic}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-900i.woff2) format('woff2');font-weight:900;font-style:italic}
+html,body{margin:0;background:#e9e6de;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+a{color:#0e1b33}a:hover{color:#1e7fd0}
+[data-tema]{--bg:#f4f2ec;--card:#ffffff;--sub:#e9e6de;--line:rgba(14,27,51,.1);--borde:rgba(14,27,51,.14);--tx:#0e1b33;--tx2:#5b6478;--tx3:#9aa1b0;--ok:#18895b}
+[data-tema="noche"]{--bg:#0a1226;--card:#111c36;--sub:#1b2847;--line:rgba(220,230,255,.09);--borde:rgba(220,230,255,.14);--tx:#f1f4fa;--tx2:#93a0bc;--tx3:#5d6a86;--ok:#3ccf8e}
+[data-acento="naranja"]{--acc:#ff5b1f;--acct:#e04a12;--accd:#ff5b1f;--accs:rgba(255,91,31,.14)}
+[data-acento="azul"]{--acc:#1e7fd0;--acct:#1a6fb8;--accd:#2f8fe0;--accs:rgba(30,127,208,.14)}
+[data-acento="verde"]{--acc:#18895b;--acct:#147a50;--accd:#3ccf8e;--accs:rgba(24,137,91,.14)}
+[data-acento="noche"]{--acc:#0e1b33;--acct:#0e1b33;--accd:#f4f2ec;--accs:rgba(14,27,51,.1)}
+@keyframes qpulse{0%,100%{box-shadow:0 0 0 0 var(--accs)}50%{box-shadow:0 0 0 8px rgba(0,0,0,0)}}
+@keyframes qlate{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes qbaja{from{transform:translateY(-130%)}to{transform:none}}
+@keyframes qsacude{0%,100%{transform:rotate(0)}25%{transform:rotate(-18deg)}75%{transform:rotate(18deg)}}
+@keyframes qsube{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes qpop{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes qscan{0%,100%{top:14%}50%{top:82%}}
+@keyframes qgira{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:56px;padding:40px 24px;box-sizing:border-box;background:#e9e6de;font-family:'Barlow',system-ui,sans-serif;color:#0e1b33">
+  <aside style="width:300px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px;letter-spacing:.14em">QUILOMBO</span>
+      <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:46px;line-height:.92;text-transform:uppercase">App del mesero</span>
+      <span style="font-size:14.5px;color:#5b6478;line-height:1.45;text-wrap:pretty">Grande y rápida, para usar con una mano entre mesas y canchas. Pádel Club La 70.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5b6478">Color de acento</span>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+        <sc-for list="{{ acentos }}" as="a" hint-placeholder-count="4"><button onClick="{{ a.elegir }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:12px;border:{{ a.borde }};background:#fff"><i style="width:28px;height:28px;border-radius:14px;background:{{ a.c }}"></i><small style="font-size:11.5px;font-weight:800;text-align:center;line-height:1.1">{{ a.n }}</small></button></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5b6478">Simular lo que pasa en el club</span>
+      <sc-for list="{{ flujos }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.ir }}" style="display:flex;gap:12px;align-items:center;text-align:left;padding:11px 14px;border-radius:12px;border:1px solid rgba(14,27,51,.1);background:#fff"><b style="font-size:22px;width:24px">{{ f.e }}</b><span style="display:flex;flex-direction:column"><b style="font-size:15px">{{ f.t }}</b><small style="font-size:12.5px;color:#5b6478">{{ f.s }}</small></span></button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ toggleTema }}" style="flex:1;height:42px;border-radius:10px;border:1px solid rgba(14,27,51,.14);background:#fff;font-size:13.5px;font-weight:800">{{ temaLabel }}</button>
+      <button onClick="{{ reiniciar }}" style="flex:1;height:42px;border-radius:10px;border:1px solid rgba(14,27,51,.14);background:#fff;font-size:13.5px;font-weight:800">Reiniciar demo</button>
+    </div>
+  </aside>
+
+  <div style="flex:none;width:393px;height:852px;padding:10px;border-radius:64px;background:#d9d5ca;box-shadow:inset 0 0 0 1px rgba(14,27,51,.12),0 50px 100px rgba(14,27,51,.22),0 14px 30px rgba(14,27,51,.12)">
+  <div style="width:373px;height:832px;border-radius:54px;overflow:hidden;background:#000">
+  <div data-tema="{{ tema }}" data-acento="{{ acento }}" style="position:relative;width:393px;height:852px;transform:scale(.9491);transform-origin:0 0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Barlow',system-ui,sans-serif">
+
+    <!-- ¿Quién eres? -->
+    <sc-if value="{{ sinMesero }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="Quién eres" style="position:absolute;inset:0;background:var(--bg);color:var(--tx);padding:96px 22px 40px;display:flex;flex-direction:column;overflow:hidden">
+      <span style="position:absolute;right:-90px;top:-70px;width:260px;height:260px;border-radius:50%;border:32px solid var(--acc);opacity:.9"></span>
+      <small style="position:relative;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acct)">Pádel Club La 70</small>
+      <h1 style="position:relative;margin:10px 0 6px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:62px;line-height:.9;text-transform:uppercase">¿Quién eres?</h1>
+      <p style="position:relative;margin:0 0 28px;font-size:17px;opacity:.75">Elige tu nombre para tomar pedidos</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ meseros }}" as="m" hint-placeholder-count="2">
+          <button onClick="{{ m.elegir }}" style="display:flex;align-items:center;gap:14px;min-height:80px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left">
+            <span style="width:52px;height:52px;border-radius:12px;background:{{ m.c }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px">{{ m.i }}</span>
+            <span style="flex:1;font-size:23px;font-weight:800">{{ m.n }}</span>
+            <span style="font-size:13px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;font-weight:700">Mesero</span>
+          </button>
+        </sc-for>
+      </div>
+      <span style="margin-top:auto;font-size:13px;color:var(--tx2);text-align:center">Turno de la noche · 4:00 p. m. a 11:00 p. m.</span>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ conMesero }}" hint-placeholder-val="{{ false }}">
+    <header style="position:absolute;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:56px 14px 12px 18px;background:var(--card);color:var(--tx);border-bottom:1px solid var(--line)">
+      <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1;letter-spacing:.04em;color:var(--acct)">QUILOMBO</b><small style="font-size:13px;font-weight:600;color:var(--tx2)">Pádel Club La 70 · Bar</small></span>
+      <button onClick="{{ abrirEscaner }}" style="display:flex;align-items:center;gap:6px;height:46px;padding:0 14px;border:0;border-radius:12px;background:var(--acc);color:{{ accTx }};font-weight:900;font-size:16px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"></path><path d="M8 12h8"></path></svg>QR</button>
+      <button onClick="{{ salir }}" style="display:flex;align-items:center;gap:8px;height:46px;padding:0 12px 0 6px;border:1px solid var(--borde);border-radius:12px;background:none;font-weight:800;font-size:15px"><span style="width:34px;height:34px;border-radius:9px;background:{{ yoC }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">{{ yoI }}</span>{{ yoN }}</button>
+    </header>
+
+    <div ref="{{ scrollRef }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:124px 0 110px">
+
+      <!-- PEDIDOS -->
+      <sc-if value="{{ tPedidos }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Pedidos">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:14px 16px 4px">
+          <sc-for list="{{ contadores }}" as="c" hint-placeholder-count="3"><div style="padding:10px 12px;border-radius:14px;background:{{ c.bg }};color:{{ c.tx }};display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:36px;line-height:1">{{ c.n }}</b><small style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em">{{ c.t }}</small></div></sc-for>
+        </div>
+        <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:8px;margin:20px 20px 10px"><i style="width:10px;height:10px;border-radius:5px;background:{{ g.c }};animation:{{ g.anim }}"></i><h2 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:24px;text-transform:uppercase">{{ g.t }}</h2><small style="font-size:14px;font-weight:800;color:var(--tx2)">{{ g.n }}</small></div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin:0 16px">
+            <sc-for list="{{ g.items }}" as="p" hint-placeholder-count="1">
+              <article style="border-radius:16px;background:var(--card);border:{{ p.borde }};overflow:hidden;animation:{{ p.anim }}">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 14px 10px">
+                  <span style="display:flex;flex-direction:column;min-width:0">
+                    <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;line-height:.9;text-transform:uppercase">{{ p.ubic }}</b>
+                    <small style="margin-top:4px;font-size:14px;font-weight:700;color:var(--tx2)">#{{ p.num }} · {{ p.cliente }} · {{ p.hace }}</small>
+                  </span>
+                  <span style="flex:none;padding:5px 9px;border-radius:9px;background:{{ p.origenBg }};color:{{ p.origenTx }};font-size:12.5px;font-weight:900;white-space:nowrap">{{ p.origen }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;padding:0 14px 12px">
+                  <sc-for list="{{ p.items }}" as="it" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700"><span style="font-size:22px;width:28px">{{ it.e }}</span><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:24px;width:30px">{{ it.q }}×</b><span style="flex:1">{{ it.n }}</span></div></sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 12px 14px;border-top:1px dashed var(--line)">
+                  <span style="flex:1;display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ p.totalTxt }}</b><small style="font-size:12.5px;font-weight:800;color:{{ p.pagoC }}">{{ p.pago }}</small></span>
+                  <button onClick="{{ p.accion }}" style="height:54px;padding:0 20px;border:0;border-radius:12px;background:{{ p.btnBg }};color:#fff;font-size:17px;font-weight:900">{{ p.btn }}</button>
+                </div>
+              </article>
+            </sc-for>
+            <sc-if value="{{ g.vacio }}" hint-placeholder-val="{{ false }}"><div style="padding:16px;border-radius:14px;border:1.5px dashed var(--borde);text-align:center;font-size:14.5px;color:var(--tx2)">{{ g.vacioTxt }}</div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- CANCHAS -->
+      <sc-if value="{{ tCanchas }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Canchas" style="display:flex;flex-direction:column;gap:12px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px"><h2 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;text-transform:uppercase">Así van las canchas</h2><small style="font-size:13px;font-weight:800;color:var(--tx2)">6:56 p. m.</small></div>
+        <sc-for list="{{ canchas }}" as="c" hint-placeholder-count="4">
+          <article style="border-radius:18px;background:var(--card);border:{{ c.borde }};overflow:hidden;animation:{{ c.anim }}">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 14px 10px">
+              <span style="width:58px;height:58px;flex:none;border-radius:14px;background:{{ c.bg }};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center"><small style="font-size:10px;font-weight:800;letter-spacing:.08em;opacity:.8">CANCHA</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:.9">{{ c.n }}</b></span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:18px">{{ c.quien }}</b><small style="font-size:13.5px;color:var(--tx2);font-weight:600">{{ c.sub }}</small></span>
+              <sc-if value="{{ c.ocupada }}" hint-placeholder-val="{{ true }}"><span style="display:flex;flex-direction:column;align-items:flex-end"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1;color:{{ c.quedaC }}">{{ c.queda }}</b><small style="font-size:11.5px;font-weight:800;color:var(--tx2)">QUEDAN</small></span></sc-if>
+            </div>
+            <sc-if value="{{ c.ocupada }}" hint-placeholder-val="{{ true }}"><div style="margin:0 14px;height:8px;border-radius:4px;background:var(--sub);overflow:hidden"><i style="display:block;height:100%;width:{{ c.avance }};background:{{ c.bg }};border-radius:4px"></i></div></sc-if>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 0">
+              <sc-for list="{{ c.chips }}" as="ch" hint-placeholder-count="2"><span style="padding:5px 9px;border-radius:9px;background:{{ ch.bg }};color:{{ ch.tx }};font-size:13px;font-weight:800;white-space:nowrap">{{ ch.t }}</span></sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px 12px 14px;border-top:1px dashed var(--line)">
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><small style="font-size:11.5px;font-weight:800;letter-spacing:.08em;color:var(--tx2);text-transform:uppercase">Próxima · {{ c.proxHora }}</small><b style="font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.prox }}</b><small style="font-size:12.5px;font-weight:800;color:{{ c.proxC }}">{{ c.proxEstado }}</small></span>
+              <button onClick="{{ c.pedir }}" style="flex:none;height:48px;padding:0 14px;border:0;border-radius:12px;background:var(--sub);font-size:15px;font-weight:900">＋ Pedido</button>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- TARJETAS -->
+      <sc-if value="{{ tTarjetas }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Tarjetas" style="padding:16px">
+        <h2 style="margin:0 4px 12px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;text-transform:uppercase">Escanear tarjeta</h2>
+        <button onClick="{{ leerDemo }}" style="position:relative;display:block;width:100%;height:280px;padding:0;border:0;border-radius:20px;background:#0a1226;overflow:hidden">
+          <span style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px)"></span>
+          <span style="position:absolute;left:50%;top:50%;width:190px;height:190px;margin:-95px 0 0 -95px">
+            <i style="position:absolute;left:0;top:0;width:42px;height:42px;border-left:6px solid var(--accd);border-top:6px solid var(--accd);border-radius:14px 0 0 0"></i>
+            <i style="position:absolute;right:0;top:0;width:42px;height:42px;border-right:6px solid var(--accd);border-top:6px solid var(--accd);border-radius:0 14px 0 0"></i>
+            <i style="position:absolute;left:0;bottom:0;width:42px;height:42px;border-left:6px solid var(--accd);border-bottom:6px solid var(--accd);border-radius:0 0 0 14px"></i>
+            <i style="position:absolute;right:0;bottom:0;width:42px;height:42px;border-right:6px solid var(--accd);border-bottom:6px solid var(--accd);border-radius:0 0 14px 0"></i>
+            <i style="position:absolute;left:10%;right:10%;height:3px;border-radius:2px;background:var(--accd);box-shadow:0 0 18px var(--accd);animation:qscan 2.4s ease-in-out infinite"></i>
+          </span>
+          <span style="position:absolute;left:0;right:0;bottom:14px;color:#fff;font-size:14.5px;font-weight:700;opacity:.85">Apunta al QR de la tarjeta · toca para simular</span>
+        </button>
+        <div style="margin:16px 4px 8px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">O digita el código de 6</div>
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ codigoCajas }}" as="k" hint-placeholder-count="6"><div style="height:58px;border-radius:12px;background:var(--card);border:2px solid {{ k.borde }};display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px">{{ k.v }}</div></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;margin-top:8px">
+          <sc-for list="{{ teclas }}" as="k" hint-placeholder-count="16"><button onClick="{{ k.tocar }}" style="height:42px;border:0;border-radius:9px;background:var(--sub);font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:20px">{{ k.t }}</button></sc-for>
+        </div>
+        <h2 style="margin:22px 4px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Tarjetas de hoy</h2>
+        <div style="border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ tarjetasHoy }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.abrir }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:0;border-top:{{ t.sep }};background:none;text-align:left">
+              <span style="width:44px;height:44px;flex:none;border-radius:22px;background:{{ t.c }};color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center">{{ t.i }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:16px">{{ t.n }}</b><small style="font-size:13px;color:var(--tx2);font-weight:600">{{ t.cod }} · hoy {{ t.consumoTxt }}</small></span>
+              <span style="display:flex;flex-direction:column;align-items:flex-end"><small style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--tx2)">SALDO</small><b style="font-size:16px;color:{{ t.saldoC }}">{{ t.saldoTxt }}</b></span>
+            </button>
+          </sc-for>
+        </div>
+        <button onClick="{{ abrirDividir }}" style="display:block;width:100%;margin-top:12px;height:54px;border:1.5px dashed var(--borde);border-radius:14px;background:none;font-size:16px;font-weight:900">✂️ Dividir entre tarjetas</button>
+      </div>
+      </sc-if>
+
+      <!-- NUEVO -->
+      <sc-if value="{{ tNuevo }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Nuevo pedido" style="padding:16px 16px 90px">
+        <h2 style="margin:0 4px 12px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;text-transform:uppercase">Nuevo pedido</h2>
+        <div style="font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase;margin:0 4px 8px">¿Dónde?</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ ubicaciones }}" as="u" hint-placeholder-count="6"><button onClick="{{ u.elegir }}" style="height:54px;border:2px solid {{ u.borde }};border-radius:12px;background:{{ u.bg }};color:{{ u.tx }};font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:21px;text-transform:uppercase">{{ u.t }}</button></sc-for>
+        </div>
+        <div style="font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase;margin:16px 4px 8px">A nombre de</div>
+        <input value="{{ aNombre }}" onChange="{{ cambiarNombre }}" placeholder="Ej. Mateo, mesa de la esquina" style="width:100%;box-sizing:border-box;height:52px;border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:0 16px;font:inherit;font-size:17px;outline:none">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:16px 0 8px;padding:4px;border-radius:14px;background:var(--sub)">
+          <sc-for list="{{ categorias }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.elegir }}" style="height:42px;border:0;border-radius:10px;background:{{ c.bg }};box-shadow:{{ c.sombra }};font-size:14.5px;font-weight:900">{{ c.t }}</button></sc-for>
+        </div>
+        <div style="border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ cartaUI }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:{{ p.sep }};background:{{ p.bg }}">
+              <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--sub);font-size:24px;display:flex;align-items:center;justify-content:center">{{ p.e }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:16.5px">{{ p.n }}</b><small style="font-size:13.5px;color:var(--tx2);font-weight:600">{{ p.precioTxt }}</small></span>
+              <span style="display:flex;align-items:center;gap:6px"><button onClick="{{ p.menos }}" style="width:44px;height:44px;border:0;border-radius:22px;background:var(--sub);font-size:22px;font-weight:900;opacity:{{ p.opM }}">−</button><b style="width:24px;text-align:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:24px">{{ p.q }}</b><button onClick="{{ p.mas }}" style="width:44px;height:44px;border:0;border-radius:22px;background:var(--acc);color:{{ accTx }};font-size:22px;font-weight:900">+</button></span>
+            </div>
+          </sc-for>
+        </div>
+        <textarea value="{{ nota }}" onChange="{{ cambiarNota }}" rows="2" placeholder="Nota: sin hielo, bien fría…" style="width:100%;box-sizing:border-box;margin-top:12px;border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:12px 16px;font:inherit;font-size:16px;outline:none;resize:none"></textarea>
+      </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ tNuevo }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:0;right:0;bottom:92px;z-index:22;padding:10px 16px;background:var(--bg);border-top:1px solid var(--line)"><button onClick="{{ enviarPedido }}" disabled="{{ nuevoVacio }}" style="width:100%;height:58px;border:0;border-radius:14px;background:var(--acc);color:{{ accTx }};font-size:18px;font-weight:900;opacity:{{ nuevoOp }}">Enviar pedido · {{ nuevoTotalTxt }}</button></div>
+    </sc-if>
+
+    <nav style="position:absolute;left:0;right:0;bottom:0;z-index:25;height:92px;padding-bottom:30px;box-sizing:border-box;display:flex;background:var(--card);border-top:1px solid var(--line)">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.ir }}" style="position:relative;flex:1;border:0;background:{{ t.bg }};color:{{ t.c }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'Barlow Condensed';font-weight:700;font-size:14.5px;text-transform:uppercase;letter-spacing:.06em">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.d }}"></path></svg>{{ t.n }}
+          <sc-if value="{{ t.hayGlobo }}" hint-placeholder-val="{{ false }}"><i style="position:absolute;top:6px;left:calc(50% + 8px);min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:11px;background:{{ t.globoBg }};color:#fff;font-family:'Barlow';font-style:normal;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ t.globo }}</i></sc-if>
+        </button>
+      </sc-for>
+    </nav>
+    </sc-if>
+
+    <!-- HOJA -->
+    <div style="position:absolute;inset:0;z-index:50;pointer-events:{{ hojaPE }}">
+      <div onClick="{{ cerrarHoja }}" style="position:absolute;inset:0;background:rgba(10,18,38,.5);opacity:{{ hojaOp }};transition:opacity .25s"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;max-height:90%;overflow-y:auto;scrollbar-width:none;border-radius:24px 24px 0 0;background:var(--card);color:var(--tx);padding:0 0 34px;transform:{{ hojaT }};transition:transform .38s cubic-bezier(.32,.72,0,1)">
+        <div style="width:36px;height:5px;border-radius:3px;background:var(--tx3);opacity:.5;margin:8px auto 4px"></div>
+
+        <sc-if value="{{ hCuenta }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 18px 0;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:#0e1b33;color:#fff;position:relative;overflow:hidden">
+              <span style="position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;border:18px solid var(--accd)"></span>
+              <span style="position:relative;width:60px;height:60px;flex:none;border-radius:30px;background:{{ cu.c }};font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center">{{ cu.i }}</span>
+              <span style="position:relative;flex:1;display:flex;flex-direction:column"><b style="font-size:19px">{{ cu.n }}</b><small style="font-size:13px;opacity:.75;font-weight:600">🛳️ Tarjeta {{ cu.cod }}</small></span>
+              <span style="position:relative;display:flex;flex-direction:column;align-items:flex-end"><small style="font-size:10.5px;font-weight:800;letter-spacing:.1em;opacity:.7">SALDO</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:1">{{ cu.saldoTxt }}</b></span>
+            </div>
+            <sc-if value="{{ cuCargando }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+                <sc-for list="{{ rapidos }}" as="p" hint-placeholder-count="6"><button onClick="{{ p.mas }}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border:2px solid {{ p.borde }};border-radius:14px;background:{{ p.bg }}"><span style="font-size:26px">{{ p.e }}</span><b style="font-size:13.5px;line-height:1.1;text-align:center">{{ p.n }}</b><small style="font-size:12px;color:var(--tx2);font-weight:700">{{ p.precioTxt }}</small><sc-if value="{{ p.hay }}" hint-placeholder-val="{{ false }}"><i style="position:absolute;top:-8px;right:-6px;min-width:26px;height:26px;border-radius:13px;background:var(--acc);color:{{ accTx }};font-style:normal;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;animation:qpop .3s both">{{ p.q }}</i></sc-if></button></sc-for>
+              </div>
+              <sc-if value="{{ cuFalta }}" hint-placeholder-val="{{ false }}"><div style="padding:12px 14px;border-radius:12px;background:#ffe9b8;color:#7a4e00;display:flex;flex-direction:column;gap:8px"><b style="font-size:15px">Saldo insuficiente · que recargue</b><span style="font-size:13.5px">Le faltan {{ cuFaltaTxt }}. También puede pagar de otra forma:</span><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px"><sc-for list="{{ otrosMetodos }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.cobrar }}" style="height:40px;border:0;border-radius:10px;background:#0e1b33;color:#fff;font-size:13.5px;font-weight:900">{{ m.t }}</button></sc-for></div></div></sc-if>
+              <button onClick="{{ cobrarSaldo }}" disabled="{{ cuNoCobrable }}" style="height:60px;border:0;border-radius:14px;background:var(--acc);color:{{ accTx }};font-size:18px;font-weight:900;opacity:{{ cuOp }}">Cobrar {{ cuTotalTxt }} con saldo</button>
+            </sc-if>
+            <sc-if value="{{ cuProcesando }}" hint-placeholder-val="{{ false }}"><div style="height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><i style="width:52px;height:52px;border-radius:50%;border:5px solid var(--sub);border-top-color:var(--acc);animation:qgira .8s linear infinite"></i><b style="font-size:17px">Cobrando…</b></div></sc-if>
+            <sc-if value="{{ cuListo }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0 4px;text-align:center">
+                <span style="width:84px;height:84px;border-radius:42px;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;animation:qpop .5s both"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+                <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;line-height:1;text-transform:uppercase;margin-top:8px">Pagado ✓</b>
+                <span style="font-size:17px;font-weight:700">{{ cuCobradoTxt }} · le quedan {{ cu.saldoTxt }}</span>
+                <small style="font-size:13.5px;color:var(--tx2)">Se lo llevas a {{ cuLugar }}</small>
+              </div>
+              <button onClick="{{ cerrarHoja }}" style="height:56px;border:0;border-radius:14px;background:#0e1b33;color:#fff;font-size:17px;font-weight:900">Listo</button>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hDividir }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 18px 0;display:flex;flex-direction:column;gap:12px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;text-transform:uppercase;line-height:1">Dividir entre tarjetas</b><small style="font-size:14px;color:var(--tx2);margin-top:4px">Cuenta de la Cancha 1 · {{ divTotalTxt }}</small></span>
+            <div style="font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Tarjetas escaneadas</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><sc-for list="{{ divTarjetas }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.toggle }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:0;opacity:{{ t.op }}"><span style="width:56px;height:56px;border-radius:28px;background:{{ t.c }};color:#fff;font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:{{ t.aro }}">{{ t.i }}</span><small style="font-size:12.5px;font-weight:800">{{ t.corto }}</small></button></sc-for></div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--sub)"><sc-for list="{{ divModos }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.elegir }}" style="height:42px;border:0;border-radius:10px;background:{{ m.bg }};box-shadow:{{ m.sombra }};font-size:14px;font-weight:900">{{ m.t }}</button></sc-for></div>
+            <div style="border-radius:16px;border:1px solid var(--line);overflow:hidden"><sc-for list="{{ divPartes }}" as="p" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:{{ p.sep }}"><span style="width:38px;height:38px;border-radius:19px;background:{{ p.c }};color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center">{{ p.i }}</span><span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15.5px">{{ p.n }}</b><small style="font-size:12.5px;font-weight:800;color:{{ p.ec }}">{{ p.estado }}</small></span><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px">{{ p.montoTxt }}</b></div></sc-for></div>
+            <button onClick="{{ cobrarDividido }}" style="height:60px;border:0;border-radius:14px;background:var(--acc);color:{{ accTx }};font-size:18px;font-weight:900">{{ divBoton }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hCobrar }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 18px 0;display:flex;flex-direction:column;gap:12px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;text-transform:uppercase;line-height:1">Cobrar pedido #{{ cob.num }}</b><small style="font-size:14px;color:var(--tx2);margin-top:4px">{{ cob.ubic }} · {{ cob.cliente }}</small></span>
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:60px;line-height:1">{{ cob.totalTxt }}</b>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ metodosCobro }}" as="m" hint-placeholder-count="4"><button onClick="{{ m.cobrar }}" style="height:72px;border:0;border-radius:14px;background:{{ m.bg }};color:{{ m.tx }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:15px;font-weight:900"><span style="font-size:24px">{{ m.e }}</span>{{ m.t }}</button></sc-for></div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- Banners -->
+    <sc-if value="{{ hayBanner }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ tocarBanner }}" style="position:absolute;left:10px;right:10px;top:52px;z-index:60;display:flex;align-items:center;gap:12px;padding:14px 16px;border:0;border-radius:16px;background:{{ banner.bg }};color:#fff;text-align:left;box-shadow:0 14px 34px rgba(14,27,51,.4);animation:qbaja .35s cubic-bezier(.34,1.4,.64,1) both">
+        <span style="font-size:32px;animation:qsacude .6s ease-in-out 3">{{ banner.e }}</span>
+        <span style="display:flex;flex-direction:column;min-width:0"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1;text-transform:uppercase">{{ banner.t }}</b><small style="font-size:14.5px;font-weight:600;opacity:.95">{{ banner.s }}</small></span>
+      </button>
+    </sc-if>
+    <sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:16px;right:16px;bottom:108px;z-index:61;padding:14px 16px;border-radius:12px;background:{{ toast.bg }};color:#fff;font-weight:800;font-size:16px;text-align:center;box-shadow:0 8px 24px rgba(14,27,51,.3);animation:qsube .3s both">{{ toast.t }}</div></sc-if>
+
+    <div style="position:absolute;left:0;right:0;top:0;z-index:70;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 44px;pointer-events:none;color:var(--tx)">
+      <b style="font-size:16.5px;font-weight:700">6:56</b>
+      <span style="display:flex;align-items:center;gap:6px"><span style="display:flex;align-items:flex-end;gap:2px;height:12px"><i style="width:3px;height:4px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:6px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:9px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:12px;border-radius:1px;background:currentColor"></i></span><span style="width:24px;height:12px;border-radius:4px;border:1.5px solid currentColor;padding:1.5px;box-sizing:border-box;display:flex"><i style="width:60%;border-radius:2px;background:currentColor"></i></span></span>
+    </div>
+    <div style="position:absolute;top:11px;left:50%;z-index:71;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000"></div>
+    <div style="position:absolute;bottom:8px;left:50%;z-index:72;width:136px;height:5px;margin-left:-68px;border-radius:3px;background:var(--tx);opacity:.8;pointer-events:none"></div>
+  </div>
+  </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;acento&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;azul&quot;, &quot;verde&quot;, &quot;naranja&quot;, &quot;noche&quot;], &quot;default&quot;: &quot;azul&quot;, &quot;tsType&quot;: &quot;'azul'|'verde'|'naranja'|'noche'&quot;}}">const $ = (n) => '$' + Math.round(n).toLocaleString('es-CO');
+const ACENTOS = { naranja: { c: '#ff5b1f', n: 'Naranja' }, azul: { c: '#1e7fd0', n: 'Azul cancha' }, verde: { c: '#18895b', n: 'Verde cancha' }, noche: { c: '#0e1b33', n: 'Azul noche' } };
+const CARTA = [
+  { id: 'cer', cat: 'bebidas', n: 'Cerveza', e: '🍺', p: 9000 }, { id: 'mic', cat: 'bebidas', n: 'Michelada', e: '🍹', p: 12000 }, { id: 'agu', cat: 'bebidas', n: 'Agua', e: '💧', p: 4000 }, { id: 'hid', cat: 'bebidas', n: 'Hidratante', e: '⚡', p: 7000 }, { id: 'lim', cat: 'bebidas', n: 'Limonada de coco', e: '🥥', p: 10000 },
+  { id: 'emp', cat: 'comida', n: 'Empanadas ×3', e: '🥟', p: 9000 }, { id: 'pic', cat: 'comida', n: 'Picada para 4', e: '🍢', p: 48000 }, { id: 'sal', cat: 'comida', n: 'Salchipapa', e: '🍟', p: 16000 },
+  { id: 'tub', cat: 'tienda', n: 'Tubo de pelotas', e: '🎾', p: 32000 }, { id: 'pal', cat: 'tienda', n: 'Alquiler de pala', e: '🏓', p: 15000 }, { id: 'gri', cat: 'tienda', n: 'Grip', e: '🧤', p: 12000 }
+];
+const P = (id) => CARTA.find((x) => x.id === id);
+const PERS = {
+  demo: { n: 'Demo Jugador', corto: 'Demo', i: 'DJ', c: '#3346a8', cod: 'Q7K2MX', saldo: 142000, consumo: 18000 },
+  juan: { n: 'Juan Pérez', corto: 'Juan', i: 'JP', c: '#1e7fd0', cod: 'J8RT3N', saldo: 86000, consumo: 0 },
+  sara: { n: 'Sara Uribe', corto: 'Sara', i: 'SU', c: '#b98500', cod: 'K4PZ9W', saldo: 24000, consumo: 21000 },
+  mateo: { n: 'Mateo Restrepo', corto: 'Mateo', i: 'MR', c: '#e8475b', cod: 'M2XV7Q', saldo: 210000, consumo: 27000 }
+};
+const ICON = {
+  pedidos: 'M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6',
+  canchas: 'M5.5 3h13A1.5 1.5 0 0 1 20 4.5v15a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5v-15A1.5 1.5 0 0 1 5.5 3zM4 12h16M12 3v18',
+  tarjetas: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2M20 14v6h-6v-2',
+  nuevo: 'M12 5v14M5 12h14'
+};
+const it = (id, q) => ({ ...P(id), q });
+function inicial(props) {
+  return {
+    yo: null, tab: 'pedidos', tema: 'tiza', acento: (props && props.acento) || 'azul',
+    pedidos: [
+      { id: 'p47', num: 47, ubic: 'Cancha 1', cliente: 'Mateo Restrepo', origen: 'app', items: [it('cer', 2), it('emp', 1)], estado: 'nuevo', hace: 'hace 1 min', pagado: true },
+      { id: 'p46', num: 46, ubic: 'Terraza', cliente: 'Sara Uribe', origen: 'tarjeta', items: [it('mic', 1), it('sal', 1)], estado: 'nuevo', hace: 'hace 3 min', pagado: true },
+      { id: 'p45', num: 45, ubic: 'Cancha 3', cliente: 'Demo Jugador', origen: 'tarjeta', items: [it('cer', 2)], estado: 'preparando', hace: 'hace 6 min', pagado: true },
+      { id: 'p44', num: 44, ubic: 'Barra', cliente: 'Tomás Arango', origen: 'mesero', items: [it('pic', 1), it('agu', 2)], estado: 'preparando', hace: 'hace 9 min', pagado: false },
+      { id: 'p43', num: 43, ubic: 'Cancha 2', cliente: 'Laura Gil', origen: 'mesero', items: [it('tub', 1)], estado: 'entregado', hace: 'hace 14 min', pagado: false }
+    ],
+    saldos: Object.fromEntries(Object.entries(PERS).map(([k, v]) => [k, v.saldo])),
+    consumos: Object.fromEntries(Object.entries(PERS).map(([k, v]) => [k, v.consumo])),
+    nueva: null, banner: null, toast: null,
+    ubic: 'Cancha 1', aNombre: '', cat: 'bebidas', carrito: {}, nota: '',
+    hoja: null, cuentaDe: 'demo', cargo: {}, cuEtapa: 'cargar', cobrado: 0, cobrarId: null,
+    codigo: '', divSel: ['demo', 'juan'], divModo: 'mitad', divHecho: false
+  };
+}
+
+class Component extends DCLogic {
+  state = inicial(this.props);
+  scrollRef = React.createRef();
+  componentDidUpdate(pp, ps) {
+    if (ps.tab !== this.state.tab && this.scrollRef.current) this.scrollRef.current.scrollTop = 0;
+    if (pp.acento !== this.props.acento && this.props.acento) this.setState({ acento: this.props.acento });
+  }
+  componentWillUnmount() { clearTimeout(this.bT); clearTimeout(this.tT); }
+  avisar(t, bg) { clearTimeout(this.tT); this.setState({ toast: { t, bg: bg || '#18895b' } }); this.tT = setTimeout(() => this.setState({ toast: null }), 2600); }
+  anunciar(b) { clearTimeout(this.bT); this.setState({ banner: b }); this.bT = setTimeout(() => this.setState({ banner: null }), 5500); }
+  abrirCuenta(k) { this.setState({ hoja: 'cuenta', cuentaDe: k, cargo: {}, cuEtapa: 'cargar', codigo: '' }); }
+  simularPedido() {
+    const num = Math.max(...this.state.pedidos.map((p) => p.num)) + 1;
+    const p = { id: 'p' + num, num, ubic: 'Cancha 2', cliente: 'Juan Pérez', origen: 'app', items: [it('cer', 2), it('hid', 2)], estado: 'nuevo', hace: 'ahora', pagado: true, recien: true };
+    this.setState((s) => ({ pedidos: [p, ...s.pedidos] }));
+    this.anunciar({ e: '🛎️', t: '¡Pedido nuevo! Cancha 2', s: '#' + num + ' · Juan Pérez · 📱 desde la app', bg: 'var(--acc)', tab: 'pedidos' });
+  }
+  cobrarPedido(id, metodo) {
+    this.setState((s) => ({ hoja: null, pedidos: s.pedidos.map((p) => (p.id === id ? { ...p, estado: 'pagado', pagado: true } : p)) }));
+    this.avisar('Cobrado con ' + metodo + ' ✓');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const accTx = '#fff';
+    const sep = (i) => (i ? '1px solid var(--line)' : '0');
+    const seg = (v) => ({ bg: v ? 'var(--card)' : 'transparent', sombra: v ? '0 2px 8px rgba(14,27,51,.12)' : 'none' });
+    const tot = (p) => p.items.reduce((a, x) => a + x.p * x.q, 0);
+    const MES = { Camilo: { i: 'C', c: '#ff5b1f' }, Daniela: { i: 'D', c: '#18895b' } };
+    const activos = s.pedidos.filter((p) => p.estado !== 'pagado');
+    const ORIG = { app: ['📱 App', 'rgba(30,127,208,.14)', '#1a6fb8'], tarjeta: ['🛳️ Tarjeta', '#0e1b33', '#fff'], mesero: ['🧾 Mesero', 'var(--sub)', 'var(--tx2)'] };
+    const accion = (p) => {
+      if (p.estado === 'nuevo') return ['Tomar pedido', 'var(--acc)', () => { this.setState((x) => ({ pedidos: x.pedidos.map((y) => (y.id === p.id ? { ...y, estado: 'preparando', mesero: x.yo, recien: false } : y)) })); this.avisar('Tomaste el #' + p.num + ' · ' + p.ubic); }];
+      if (p.estado === 'preparando') return ['Entregado', '#0e1b33', () => { this.setState((x) => ({ pedidos: x.pedidos.map((y) => (y.id === p.id ? { ...y, estado: 'entregado', recien: false } : y)) })); this.avisar('Entregado en ' + p.ubic + ' ✓'); }];
+      if (p.pagado) return ['Archivar', 'var(--ok)', () => this.setState((x) => ({ pedidos: x.pedidos.map((y) => (y.id === p.id ? { ...y, estado: 'pagado' } : y)) }))];
+      return ['Cobrar', '#e8475b', () => this.setState({ hoja: 'cobrar', cobrarId: p.id })];
+    };
+    const GR = [['nuevo', 'Nuevos', 'var(--acc)', 'Nada nuevo por ahora'], ['preparando', 'Preparando', '#b98500', 'Nada en preparación'], ['entregado', 'Entregados', 'var(--ok)', 'Sin entregas por cobrar']];
+    const grupos = GR.map(([k, t, c, v]) => {
+      const l = activos.filter((p) => p.estado === k);
+      return { t, c, n: l.length, vacio: !l.length, vacioTxt: v, anim: k === 'nuevo' && l.length ? 'qlate 1.2s ease-in-out infinite' : 'none', items: l.map((p) => { const [btn, btnBg, fn] = accion(p); const o = ORIG[p.origen]; return { ...p, totalTxt: $(tot(p)), origen: o[0], origenBg: o[1], origenTx: o[2], pago: p.pagado ? (p.origen === 'tarjeta' ? 'Pagado con saldo ✓' : p.origen === 'app' ? 'Pagado en la app ✓' : 'Pagado ✓') : 'Por cobrar', pagoC: p.pagado ? 'var(--ok)' : '#d42a3a', btn, btnBg, accion: fn, borde: k === 'nuevo' ? '2px solid var(--acc)' : '1px solid var(--line)', anim: p.recien ? 'qsube .4s both' : 'none' }; }) };
+    });
+
+    const reservaNueva = s.nueva;
+    const canchasData = [
+      { n: 1, quien: 'Mateo Restrepo + 3', sub: '6:00 – 7:30 p. m. · llegaron 5:52', queda: '34 min', avance: '62%', chips: [['✓ Llegaron', 'rgba(24,137,91,.14)', 'var(--ok)'], ['🍹 Bar ' + $(s.consumos.mateo), 'var(--sub)', 'var(--tx)']], prox: 'Demo Jugador', proxHora: '7:30 p. m.', proxEstado: '⏳ Apartada · falta pago', proxC: 'var(--acct)' },
+      { n: 2, quien: 'Laura Gil + 3', sub: '5:30 – 7:00 p. m. · llegaron 5:24', queda: '4 min', avance: '96%', urg: true, chips: [['✓ Llegaron', 'rgba(24,137,91,.14)', 'var(--ok)'], ['🍹 Bar $32.000', 'var(--sub)', 'var(--tx)']], prox: 'Juan Pérez', proxHora: '7:00 p. m.', proxEstado: '✓ Pagada', proxC: 'var(--ok)' },
+      { n: 3, quien: '🎓 Clase · Profe Diego', sub: '6:00 – 7:30 p. m. · grupal 2/4', queda: '34 min', avance: '62%', clase: true, chips: [['✓ Llegaron', 'rgba(24,137,91,.14)', 'var(--ok)'], ['🍹 Bar $18.000', 'var(--sub)', 'var(--tx)']], prox: 'Libre', proxHora: '7:30 p. m.', proxEstado: '$160.000 · se puede reservar', proxC: 'var(--tx2)' },
+      { n: 4, quien: reservaNueva ? 'Andrés Gómez + 3' : 'Libre ahora', sub: reservaNueva ? '7:00 – 8:30 p. m. · 📱 reservó desde la app' : 'Libre hasta las 7:30 p. m.', libre: !reservaNueva, nueva: !!reservaNueva, queda: reservaNueva ? '1:34' : '', avance: '0%', chips: reservaNueva ? [['✓ Pagada', 'rgba(24,137,91,.14)', 'var(--ok)'], ['⏳ No han llegado', 'var(--sub)', 'var(--tx2)']] : [['Libre', 'var(--sub)', 'var(--tx2)']], prox: 'Sara Uribe', proxHora: '7:30 p. m.', proxEstado: '✓ Pagada', proxC: 'var(--ok)' }
+    ];
+    const canchas = canchasData.map((c) => ({ ...c, ocupada: !c.libre, bg: c.libre ? '#9aa1b0' : c.clase ? '#3346a8' : c.urg ? '#e8475b' : 'var(--acc)', quedaC: c.urg ? '#e8475b' : 'var(--tx)', borde: c.nueva ? '2px solid var(--acc)' : '1px solid var(--line)', anim: c.nueva ? 'qsube .4s both' : 'none', chips: c.chips.map(([t, bg, tx]) => ({ t, bg, tx })), pedir: () => this.setState({ tab: 'nuevo', ubic: 'Cancha ' + c.n, carrito: {}, aNombre: c.libre ? '' : c.quien.replace(' + 3', '').replace('🎓 ', '') }) }));
+
+    const cu = PERS[s.cuentaDe];
+    const cargoTot = CARTA.reduce((a, p) => a + (s.cargo[p.id] || 0) * p.p, 0);
+    const saldo = s.saldos[s.cuentaDe];
+    const falta = cargoTot > saldo;
+    const nuevoTot = CARTA.reduce((a, p) => a + (s.carrito[p.id] || 0) * p.p, 0);
+    const divTot = 96000;
+    const n = Math.max(1, s.divSel.length);
+    const divPartes = s.divModo === 'montos' && s.divSel.length >= 2 ? s.divSel.map((k, i) => ({ k, m: i === 0 ? divTot - 30000 * (s.divSel.length - 1) : 30000 })) : s.divModo === 'mitad' ? s.divSel.slice(0, 2).map((k) => ({ k, m: divTot / 2 })) : s.divSel.map((k) => ({ k, m: divTot / n }));
+    const cob = s.pedidos.find((p) => p.id === s.cobrarId) || s.pedidos[0];
+    const hojaOpen = !!s.hoja;
+    const tabsDef = [['pedidos', 'Pedidos'], ['canchas', 'Canchas'], ['tarjetas', 'Tarjetas'], ['nuevo', 'Nuevo']];
+    const nNuevos = activos.filter((p) => p.estado === 'nuevo').length;
+    const yo = s.yo || 'Camilo';
+
+    return {
+      tema: s.tema, acento: s.acento, accTx, temaLabel: s.tema === 'tiza' ? '☾ Modo oscuro' : '☀︎ Modo claro', scrollRef: this.scrollRef,
+      toggleTema: () => this.setState((x) => ({ tema: x.tema === 'tiza' ? 'noche' : 'tiza' })),
+      reiniciar: () => this.setState({ ...inicial(this.props), acento: s.acento }),
+      acentos: Object.entries(ACENTOS).map(([k, a]) => ({ ...a, borde: s.acento === k ? '2px solid #0e1b33' : '1px solid rgba(14,27,51,.1)', elegir: () => this.setState({ acento: k }) })),
+      flujos: [
+        { e: '🛎️', t: 'Llega un pedido desde la app', s: 'Banner ¡PEDIDO NUEVO! arriba', ir: () => { this.setState({ yo, tab: 'pedidos', hoja: null }); setTimeout(() => this.simularPedido(), 150); } },
+        { e: '🛳️', t: 'Escanear la tarjeta de Demo', s: 'Cargar 2 cervezas y cobrar con saldo', ir: () => { this.setState({ yo, tab: 'tarjetas' }); setTimeout(() => this.setState({ hoja: 'cuenta', cuentaDe: 'demo', cargo: { cer: 2 }, cuEtapa: 'cargar' }), 200); } },
+        { e: '😬', t: 'Saldo que no alcanza', s: 'Sara pide una picada', ir: () => { this.setState({ yo, tab: 'tarjetas' }); setTimeout(() => this.setState({ hoja: 'cuenta', cuentaDe: 'sara', cargo: { pic: 1 }, cuEtapa: 'cargar' }), 200); } },
+        { e: '✂️', t: 'Dividir entre tarjetas', s: 'Cuenta de la Cancha 1', ir: () => this.setState({ yo, tab: 'tarjetas', hoja: 'dividir', divHecho: false }) },
+        { e: '📅', t: 'Entra una reserva nueva', s: 'Cancha 4 · desde la app', ir: () => { this.setState({ yo, nueva: true, tab: 'canchas', hoja: null }); this.anunciar({ e: '📅', t: 'Nueva reserva · Cancha 4', s: '7:00 p. m. · Andrés Gómez · 📱 app · Pagada ✓', bg: '#1e7fd0', tab: 'canchas' }); } }
+      ],
+      sinMesero: !s.yo, conMesero: !!s.yo,
+      meseros: Object.entries(MES).map(([nm, m]) => ({ n: nm, ...m, elegir: () => this.setState({ yo: nm }) })),
+      yoN: s.yo || '', yoI: s.yo ? MES[s.yo].i : '', yoC: s.yo ? MES[s.yo].c : '#000',
+      salir: () => this.setState({ yo: null, hoja: null }),
+      abrirEscaner: () => this.setState({ tab: 'tarjetas', hoja: null }),
+      tPedidos: s.tab === 'pedidos', tCanchas: s.tab === 'canchas', tTarjetas: s.tab === 'tarjetas', tNuevo: s.tab === 'nuevo',
+      tabs: tabsDef.map(([k, nm]) => ({ n: nm, d: ICON[k], c: s.tab === k ? 'var(--acct)' : 'var(--tx2)', bg: s.tab === k ? 'var(--accs)' : 'transparent', hayGlobo: (k === 'pedidos' && nNuevos > 0) || k === 'tarjetas', globo: k === 'pedidos' ? nNuevos : 4, globoBg: k === 'pedidos' ? 'var(--acc)' : 'var(--tx3)', ir: () => this.setState({ tab: k, hoja: null }) })),
+
+      contadores: [['Nuevos', nNuevos, 'var(--acc)', '#fff'], ['Preparando', activos.filter((p) => p.estado === 'preparando').length, '#0e1b33', '#fff'], ['Por cobrar', activos.filter((p) => p.estado === 'entregado' && !p.pagado).length, 'var(--card)', 'var(--tx)']].map(([t, c, bg, tx]) => ({ t, n: c, bg, tx })),
+      grupos, canchas,
+
+      leerDemo: () => this.abrirCuenta('demo'),
+      codigoCajas: Array.from({ length: 6 }, (_, i) => ({ v: s.codigo[i] || '', borde: i === s.codigo.length ? 'var(--acc)' : 'var(--line)' })),
+      teclas: 'Q7K2MXJ8RT3N4PZ9'.split('').map((t) => ({ t, tocar: () => { const c = (s.codigo + t).slice(0, 6); this.setState({ codigo: c }); if (c.length === 6) { const k = Object.keys(PERS).find((x) => PERS[x].cod === c); if (k) setTimeout(() => this.abrirCuenta(k), 250); else { this.avisar('Ese código no existe · revísalo', '#d42a3a'); setTimeout(() => this.setState({ codigo: '' }), 600); } } } })),
+      tarjetasHoy: Object.entries(PERS).map(([k, p], i) => ({ ...p, sep: sep(i), saldoTxt: $(s.saldos[k]), saldoC: s.saldos[k] < 30000 ? '#d42a3a' : 'var(--tx)', consumoTxt: $(s.consumos[k]), abrir: () => this.abrirCuenta(k) })),
+      abrirDividir: () => this.setState({ hoja: 'dividir', divHecho: false }),
+
+      ubicaciones: ['Cancha 1', 'Cancha 2', 'Cancha 3', 'Cancha 4', 'Barra', 'Terraza'].map((t) => ({ t, bg: s.ubic === t ? 'var(--acc)' : 'var(--card)', tx: s.ubic === t ? '#fff' : 'var(--tx)', borde: s.ubic === t ? 'var(--acc)' : 'var(--line)', elegir: () => this.setState({ ubic: t }) })),
+      aNombre: s.aNombre, cambiarNombre: (e) => this.setState({ aNombre: e.target.value }),
+      nota: s.nota, cambiarNota: (e) => this.setState({ nota: e.target.value }),
+      categorias: [['bebidas', '🥤 Bebidas'], ['comida', '🍽️ Comida'], ['tienda', '🎾 Tienda']].map(([k, t]) => ({ t, ...seg(s.cat === k), elegir: () => this.setState({ cat: k }) })),
+      cartaUI: CARTA.filter((p) => p.cat === s.cat).map((p, i) => ({ ...p, sep: sep(i), precioTxt: $(p.p), q: s.carrito[p.id] || 0, opM: s.carrito[p.id] ? 1 : 0.35, bg: s.carrito[p.id] ? 'var(--accs)' : 'transparent', mas: () => this.setState((x) => ({ carrito: { ...x.carrito, [p.id]: (x.carrito[p.id] || 0) + 1 } })), menos: () => this.setState((x) => ({ carrito: { ...x.carrito, [p.id]: Math.max(0, (x.carrito[p.id] || 0) - 1) } })) })),
+      nuevoTotalTxt: $(nuevoTot), nuevoVacio: nuevoTot === 0, nuevoOp: nuevoTot ? 1 : 0.4,
+      enviarPedido: () => { const num = Math.max(...s.pedidos.map((p) => p.num)) + 1; const items = CARTA.filter((p) => s.carrito[p.id]).map((p) => it(p.id, s.carrito[p.id])); this.setState((x) => ({ tab: 'pedidos', carrito: {}, nota: '', aNombre: '', pedidos: [{ id: 'p' + num, num, ubic: x.ubic, cliente: x.aNombre.trim() || x.ubic, origen: 'mesero', items, estado: 'preparando', hace: 'ahora', pagado: false, mesero: x.yo, recien: true }, ...x.pedidos] })); this.avisar('Pedido #' + num + ' enviado a la barra · ' + $(nuevoTot)); },
+
+      hojaPE: hojaOpen ? 'auto' : 'none', hojaOp: hojaOpen ? 1 : 0, hojaT: hojaOpen ? 'translateY(0)' : 'translateY(105%)', cerrarHoja: () => this.setState({ hoja: null }),
+      hCuenta: s.hoja === 'cuenta', hDividir: s.hoja === 'dividir', hCobrar: s.hoja === 'cobrar',
+      cu: { ...cu, saldoTxt: $(saldo) },
+      cuCargando: s.cuEtapa === 'cargar', cuProcesando: s.cuEtapa === 'procesando', cuListo: s.cuEtapa === 'ok',
+      rapidos: ['cer', 'mic', 'agu', 'emp', 'pic', 'tub'].map((id) => { const p = P(id); const q = s.cargo[id] || 0; return { ...p, q, hay: q > 0, precioTxt: $(p.p), borde: q ? 'var(--acc)' : 'var(--line)', bg: q ? 'var(--accs)' : 'var(--card)', mas: () => this.setState((x) => ({ cargo: { ...x.cargo, [id]: (x.cargo[id] || 0) + 1 } })) }; }),
+      cuTotalTxt: $(cargoTot), cuFalta: falta, cuFaltaTxt: $(cargoTot - saldo), cuNoCobrable: falta || cargoTot === 0, cuOp: falta || !cargoTot ? 0.4 : 1,
+      otrosMetodos: ['💵 Efectivo', '💳 Datáfono', '📲 Nequi'].map((t) => ({ t, cobrar: () => { this.setState((x) => ({ hoja: null, cargo: {}, consumos: { ...x.consumos, [x.cuentaDe]: x.consumos[x.cuentaDe] + cargoTot } })); this.avisar('Cobrado ' + $(cargoTot) + ' · ' + t.slice(t.indexOf(' ') + 1)); } })),
+      cobrarSaldo: () => { if (falta || !cargoTot) return; this.setState({ cuEtapa: 'procesando' }); setTimeout(() => this.setState((x) => ({ cuEtapa: 'ok', cobrado: cargoTot, saldos: { ...x.saldos, [x.cuentaDe]: x.saldos[x.cuentaDe] - cargoTot }, consumos: { ...x.consumos, [x.cuentaDe]: x.consumos[x.cuentaDe] + cargoTot } })), 1000); },
+      cuCobradoTxt: $(s.cobrado), cuLugar: s.cuentaDe === 'demo' ? 'la Cancha 3' : 'la Terraza',
+
+      divTotalTxt: $(divTot),
+      divTarjetas: ['demo', 'juan', 'mateo', 'sara'].map((k) => { const on = s.divSel.includes(k); return { ...PERS[k], op: on ? 1 : 0.4, aro: on ? '0 0 0 3px var(--card), 0 0 0 5px var(--acc)' : 'none', toggle: () => this.setState((x) => ({ divHecho: false, divSel: on ? x.divSel.filter((y) => y !== k) : [...x.divSel, k] })) }; }),
+      divModos: [['mitad', 'Mitad y mitad'], ['igual', 'Iguales'], ['montos', 'Montos']].map(([k, t]) => ({ t, ...seg(s.divModo === k), elegir: () => this.setState({ divModo: k, divHecho: false }) })),
+      divPartes: divPartes.map((p, i) => { const ok = s.divHecho ? p.ok : s.saldos[p.k] >= p.m; return { ...PERS[p.k], sep: sep(i), montoTxt: $(p.m), estado: s.divHecho ? (s.divRes && s.divRes[p.k] ? '✓ Pagado con saldo' : '✖ Saldo insuficiente · que recargue') : 'Saldo ' + $(s.saldos[p.k]), ec: s.divHecho ? (s.divRes && s.divRes[p.k] ? 'var(--ok)' : '#d42a3a') : 'var(--tx2)' }; }),
+      divBoton: s.divHecho ? 'Listo' : 'Cobrar a cada uno',
+      cobrarDividido: () => { if (s.divHecho) { this.setState({ hoja: null }); return; } this.setState((x) => { const sal = { ...x.saldos }; const res = {}; divPartes.forEach((p) => { res[p.k] = sal[p.k] >= p.m; if (res[p.k]) sal[p.k] -= p.m; }); return { divHecho: true, saldos: sal, divRes: res }; }); this.avisar('Cuenta dividida entre ' + divPartes.length + ' tarjetas'); },
+
+      cob: { ...cob, totalTxt: $(tot(cob)) },
+      metodosCobro: [['💵', 'Efectivo', 'var(--sub)', 'var(--tx)'], ['💳', 'Datáfono', 'var(--sub)', 'var(--tx)'], ['📲', 'Nequi', 'var(--sub)', 'var(--tx)'], ['🛳️', 'Tarjeta Quilombo', '#0e1b33', '#fff']].map(([e, t, bg, tx]) => ({ e, t, bg, tx, cobrar: () => (t === 'Tarjeta Quilombo' ? this.setState({ tab: 'tarjetas', hoja: null }) : this.cobrarPedido(cob.id, t)) })),
+
+      hayBanner: !!s.banner, banner: s.banner || { e: '', t: '', s: '', bg: '' },
+      tocarBanner: () => this.setState((x) => ({ banner: null, tab: x.banner ? x.banner.tab : x.tab })),
+      hayToast: !!s.toast, toast: s.toast || { t: '', bg: '' }
+    };
+  }
+}</script>
+</body>
+</html>

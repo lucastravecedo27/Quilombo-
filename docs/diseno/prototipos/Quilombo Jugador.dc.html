@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Quilombo · App del jugador</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+@font-face{font-family:'Barlow';src:url(fonts/barlow-400.woff2) format('woff2');font-weight:400}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-500.woff2) format('woff2');font-weight:500}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-600.woff2) format('woff2');font-weight:600}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-700.woff2) format('woff2');font-weight:700}
+@font-face{font-family:'Barlow';src:url(fonts/barlow-800.woff2) format('woff2');font-weight:800 900}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-700.woff2) format('woff2');font-weight:700;font-style:normal}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-800i.woff2) format('woff2');font-weight:800;font-style:italic}
+@font-face{font-family:'Barlow Condensed';src:url(fonts/barlowc-900i.woff2) format('woff2');font-weight:900;font-style:italic}
+html,body{margin:0;background:#e9e6de;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+a{color:#0e1b33}a:hover{color:#1e7fd0}
+[data-tema]{--bg:#f4f2ec;--card:#ffffff;--sub:#e9e6de;--line:rgba(14,27,51,.1);--borde:rgba(14,27,51,.14);--tx:#0e1b33;--tx2:#5b6478;--tx3:#9aa1b0;--ok:#18895b;--noche:#0e1b33}
+[data-tema="noche"]{--bg:#0a1226;--card:#111c36;--sub:#1b2847;--line:rgba(220,230,255,.09);--borde:rgba(220,230,255,.14);--tx:#f1f4fa;--tx2:#93a0bc;--tx3:#5d6a86;--ok:#3ccf8e;--noche:#111c36}
+[data-acento="naranja"]{--acc:#ff5b1f;--acct:#e04a12;--accd:#ff5b1f;--accs:rgba(255,91,31,.12)}
+[data-acento="azul"]{--acc:#1e7fd0;--acct:#1a6fb8;--accd:#2f8fe0;--accs:rgba(30,127,208,.12)}
+[data-acento="verde"]{--acc:#18895b;--acct:#147a50;--accd:#3ccf8e;--accs:rgba(24,137,91,.12)}
+[data-acento="noche"]{--acc:#0e1b33;--acct:#0e1b33;--accd:#f4f2ec;--accs:rgba(14,27,51,.08)}
+[data-tema="noche"][data-acento="noche"]{--acc:#f1f4fa;--acct:#f1f4fa;--accs:rgba(241,244,250,.1)}
+@keyframes qtick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes qpulse{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes qpop{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes qsube{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes qbrillo{0%{transform:translateX(-160%) rotate(20deg)}60%,100%{transform:translateX(420%) rotate(20deg)}}
+@keyframes qgira{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:56px;padding:40px 24px;box-sizing:border-box;background:#e9e6de;font-family:'Barlow',system-ui,sans-serif;color:#0e1b33">
+
+  <aside style="width:300px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px;letter-spacing:.14em">QUILOMBO</span>
+      <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:46px;line-height:.92;text-transform:uppercase">App del jugador</span>
+      <span style="font-size:14.5px;color:#5b6478;line-height:1.45;text-wrap:pretty">Rediseño navegable. Reservas, pagos, la tarjeta, resultados y ranking reaccionan de verdad: toca todo.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5b6478">Color de acento</span>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+        <sc-for list="{{ acentos }}" as="a" hint-placeholder-count="4">
+          <button onClick="{{ a.elegir }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:12px;border:{{ a.borde }};background:#fff"><i style="width:28px;height:28px;border-radius:14px;background:{{ a.c }}"></i><small style="font-size:11.5px;font-weight:800;text-align:center;line-height:1.1">{{ a.n }}</small></button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5b6478">Usar la app como</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:#fff;border:1px solid rgba(14,27,51,.1)">
+        <sc-for list="{{ comoUI }}" as="c" hint-placeholder-count="2"><button onClick="{{ c.elegir }}" style="height:38px;border:0;border-radius:9px;background:{{ c.bg }};color:{{ c.tx }};font-size:13.5px;font-weight:900">{{ c.t }}</button></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5b6478">Flujos para la reunión</span>
+      <sc-for list="{{ flujos }}" as="f" hint-placeholder-count="5">
+        <button onClick="{{ f.ir }}" style="display:flex;gap:12px;align-items:center;text-align:left;padding:11px 14px;border-radius:12px;border:1px solid rgba(14,27,51,.1);background:#fff"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;width:18px">{{ f.n }}</b><span style="display:flex;flex-direction:column"><b style="font-size:15px">{{ f.t }}</b><small style="font-size:12.5px;color:#5b6478">{{ f.s }}</small></span></button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ toggleTema }}" style="flex:1;height:42px;border-radius:10px;border:1px solid rgba(14,27,51,.14);background:#fff;font-size:13.5px;font-weight:800">{{ temaLabel }}</button>
+      <button onClick="{{ reiniciar }}" style="flex:1;height:42px;border-radius:10px;border:1px solid rgba(14,27,51,.14);background:#fff;font-size:13.5px;font-weight:800">Reiniciar demo</button>
+    </div>
+  </aside>
+
+  <div style="flex:none;width:393px;height:852px;padding:10px;border-radius:64px;background:#d9d5ca;box-shadow:inset 0 0 0 1px rgba(14,27,51,.12),0 50px 100px rgba(14,27,51,.22),0 14px 30px rgba(14,27,51,.12)">
+  <div style="width:373px;height:832px;border-radius:54px;overflow:hidden;background:#000">
+  <div data-tema="{{ tema }}" data-acento="{{ acento }}" style="position:relative;width:393px;height:852px;transform:scale(.9491);transform-origin:0 0;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Barlow',system-ui,sans-serif">
+
+    <div ref="{{ scrollRef }}" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none">
+
+      <!-- ================= SOCIAL ================= -->
+      <sc-if value="{{ isSocial }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Social" style="padding:58px 0 124px">
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;padding:6px 18px 12px 20px">
+          <div style="display:flex;flex-direction:column">
+            <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:15px;letter-spacing:.14em;color:var(--acct)">QUILOMBO</span>
+            <h1 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:50px;line-height:.9;text-transform:uppercase">Tu red</h1>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ abrirBuscar }}" aria-label="Buscar" style="width:44px;height:44px;border:0;border-radius:22px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+            <button onClick="{{ irChat }}" aria-label="Chats" style="position:relative;width:44px;height:44px;border:0;border-radius:22px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"></path></svg><i style="position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#e8475b;color:#fff;font-style:normal;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center">2</i></button>
+          </div>
+        </header>
+
+        <div style="display:flex;align-items:center;height:34px;background:#0e1b33;overflow:hidden;color:#fff">
+          <span style="flex:none;height:100%;display:flex;align-items:center;gap:6px;padding:0 12px 0 18px;background:#e8475b;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:15px;letter-spacing:.06em;position:relative;z-index:1"><i style="width:7px;height:7px;border-radius:4px;background:#fff;animation:qpulse 1.2s infinite"></i>EN VIVO</span>
+          <div style="flex:1;overflow:hidden;white-space:nowrap">
+            <div style="display:inline-flex;gap:28px;padding-left:16px;animation:qtick 34s linear infinite;font-size:13.5px;font-weight:700">
+              <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="6"><span style="display:inline-flex;gap:8px;align-items:center"><b style="color:var(--accd)">●</b>{{ t }}</span></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <nav style="display:flex;gap:12px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none">
+          <button onClick="{{ abrirFoto }}" style="flex:none;width:68px;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;padding:0">
+            <span style="position:relative;width:64px;height:64px;border-radius:32px;box-shadow:inset 0 0 0 1.5px var(--borde);display:flex;align-items:center;justify-content:center"><span style="width:56px;height:56px;border-radius:28px;background:#3346a8;color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center">DJ</span><i style="position:absolute;right:0;bottom:0;width:22px;height:22px;border-radius:11px;background:var(--acc);color:#fff;font-style:normal;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--bg)">+</i></span>
+            <small style="font-size:12px;font-weight:800">Comparte</small>
+          </button>
+          <sc-for list="{{ historias }}" as="h" hint-placeholder-count="4">
+            <button onClick="{{ h.ver }}" style="flex:none;width:68px;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;padding:0">
+              <span style="width:64px;height:64px;border-radius:32px;background:{{ h.aro }};display:flex;align-items:center;justify-content:center"><span style="width:59px;height:59px;border-radius:30px;background:var(--bg);display:flex;align-items:center;justify-content:center"><span style="width:54px;height:54px;border-radius:27px;background:{{ h.c }};color:#fff;font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center">{{ h.i }}</span></span></span>
+              <small style="font-size:12px;font-weight:800">{{ h.corto }}</small>
+            </button>
+          </sc-for>
+        </nav>
+
+        <button onClick="{{ abrirHero }}" style="position:relative;display:block;width:calc(100% - 32px);margin:12px 16px 0;padding:0;border:0;border-radius:18px;background:#0e1b33;color:#fff;text-align:left;overflow:hidden">
+          <span style="position:absolute;right:-50px;top:-46px;width:170px;height:170px;border-radius:50%;border:22px solid var(--accd);opacity:.95"></span>
+          <span style="position:relative;display:flex;flex-direction:column;gap:2px;padding:16px 18px 14px">
+            <small style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.7">Tu próximo partido</small>
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:54px;line-height:.88;text-transform:uppercase;margin-top:6px">{{ hero.dia }}</b>
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:54px;line-height:.88;text-transform:uppercase">{{ hero.hora }}</b>
+            <span style="font-size:14px;font-weight:700;opacity:.85;margin-top:6px">{{ hero.club }} · {{ hero.cancha }}</span>
+          </span>
+          <span style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px 14px;border-top:1.5px dashed rgba(255,255,255,.2)">
+            <span style="display:flex">
+              <sc-for list="{{ hero.caras }}" as="p" hint-placeholder-count="4"><span style="width:32px;height:32px;margin-right:-8px;border-radius:16px;background:{{ p.c }};box-shadow:0 0 0 2.5px #0e1b33;font-size:11.5px;font-weight:900;display:flex;align-items:center;justify-content:center">{{ p.i }}</span></sc-for>
+            </span>
+            <span style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:{{ hero.chipBg }};font-size:13px;font-weight:900;white-space:nowrap">{{ hero.chip }}</span>
+          </span>
+        </button>
+
+        <sc-if value="{{ hayAvisos }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin:24px 20px 10px"><h2 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Por resolver</h2><span style="font-size:13px;font-weight:800;color:var(--tx2)">{{ nAvisos }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:0 16px">
+            <sc-if value="{{ avisoResultado }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ abrirResultado }}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-radius:14px;background:#b98500;color:#fff;text-align:left;animation:qsube .4s both">
+                <span style="font-size:26px">🏆</span>
+                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:15px">Andrés propuso un resultado</b><small style="font-size:13px;opacity:.92">6-4 3-6 7-5 · confírmalo para que cuente</small></span>
+                <span style="font-size:14px;font-weight:900">Ver ›</span>
+              </button>
+            </sc-if>
+            <sc-if value="{{ avisoJuan }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);animation:qsube .45s both">
+                <span style="width:40px;height:40px;flex:none;border-radius:20px;background:#1e7fd0;color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center">JP</span>
+                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:15px">Juan te pide $60.000</b><small style="font-size:13px;color:var(--tx2)">Tu parte de la cancha del jueves</small></span>
+                <button onClick="{{ pagarJuan }}" style="height:38px;padding:0 13px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-size:13.5px;font-weight:900">Pagar mi parte</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ avisoSolicitud }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#3346a8;color:#fff;animation:qsube .5s both">
+                <span style="width:40px;height:40px;flex:none;border-radius:20px;background:#18895b;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(255,255,255,.3)">VR</span>
+                <span style="flex:1;font-size:14px;line-height:1.3;font-weight:600"><b>Vale</b> te agregó como <b>pareja de juego</b></span>
+                <button onClick="{{ aceptarVale }}" style="height:38px;padding:0 14px;border-radius:10px;border:0;background:#fff;color:#3346a8;font-size:14px;font-weight:900">¡Sí!</button>
+                <button onClick="{{ rechazarVale }}" aria-label="Rechazar" style="width:34px;height:34px;border-radius:17px;border:0;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;padding:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <button onClick="{{ abrirRanking }}" style="position:relative;display:flex;align-items:center;justify-content:space-between;width:calc(100% - 32px);margin:16px 16px 0;padding:16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--card);text-align:left;overflow:hidden">
+          <span style="display:flex;flex-direction:column;gap:2px">
+            <small style="font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acct)">Ranking nacional</small>
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;line-height:.95;text-transform:uppercase">Vas #{{ miPos }}</b>
+            <span style="font-size:13.5px;color:var(--tx2);font-weight:600">{{ misPtsTxt }} pts · {{ miVD }} · racha 🔥{{ miRacha }}</span>
+          </span>
+          <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <span style="display:flex;align-items:flex-end;gap:4px;height:46px">
+              <sc-for list="{{ forma }}" as="f" hint-placeholder-count="6"><i style="width:9px;height:{{ f.h }};border-radius:3px;background:{{ f.c }}"></i></sc-for>
+            </span>
+            <small style="font-size:11.5px;font-weight:800;color:var(--tx2)">Últimos 6</small>
+          </span>
+        </button>
+
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:22px 16px 12px;padding:4px;border-radius:14px;background:var(--sub)">
+          <sc-for list="{{ seccionesFeed }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.elegir }}" style="height:38px;border:0;border-radius:10px;background:{{ s.bg }};box-shadow:{{ s.sombra }};font-size:14px;font-weight:900;color:var(--tx)">{{ s.t }}</button></sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;padding:0 16px">
+          <sc-for list="{{ posts }}" as="p" hint-placeholder-count="2">
+            <article style="border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+              <header style="display:flex;align-items:center;gap:10px;padding:12px 14px">
+                <span style="width:36px;height:36px;border-radius:18px;background:{{ p.c }};color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center">{{ p.i }}</span>
+                <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15px">{{ p.autor }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ p.meta }}</small></span>
+              </header>
+              <sc-if value="{{ p.esFoto }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--sub)"></sc-if>
+              <sc-if value="{{ p.esMarcador }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:0 14px;border-radius:12px;background:#0e1b33;color:#fff;overflow:hidden">
+                  <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.06);font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase"><span>{{ p.torneo }}</span><span style="color:var(--accd)">Final</span></div>
+                  <sc-for list="{{ p.filas }}" as="f" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08)">
+                      <span style="flex:1;font-size:15px;font-weight:{{ f.peso }}">{{ f.pareja }}</span>
+                      <sc-for list="{{ f.sets }}" as="s" hint-placeholder-count="2"><b style="width:22px;text-align:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;opacity:{{ s.op }}">{{ s.v }}</b></sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <p style="margin:0;padding:12px 14px 4px;font-size:15px;line-height:1.4;text-wrap:pretty">{{ p.texto }}</p>
+              <footer style="display:flex;align-items:center;gap:6px;padding:8px 10px 12px">
+                <button onClick="{{ p.like }}" style="display:flex;align-items:center;gap:6px;height:34px;padding:0 11px;border:0;border-radius:10px;background:{{ p.likeBg }};font-size:14px;font-weight:800">❤️ {{ p.likes }}</button>
+                <button onClick="{{ p.fuego }}" style="display:flex;align-items:center;gap:6px;height:34px;padding:0 11px;border:0;border-radius:10px;background:{{ p.fuegoBg }};font-size:14px;font-weight:800">🔥 {{ p.fuegos }}</button>
+                <span style="height:34px;padding:0 11px;border-radius:10px;background:var(--sub);font-size:14px;font-weight:800;display:flex;align-items:center;gap:6px">💬 {{ p.com }}</span>
+              </footer>
+            </article>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ================= JUGAR ================= -->
+      <sc-if value="{{ isJugar }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Jugar" style="padding:58px 0 124px">
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;padding:6px 16px 4px 20px">
+          <h1 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:50px;line-height:.9;text-transform:uppercase">Jugar</h1>
+          <button onClick="{{ abrirSaldo }}" style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border:0;border-radius:12px;background:#0e1b33;color:#fff">
+            <span style="width:30px;height:30px;border-radius:8px;background:var(--accd);color:{{ qTx }};font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center">Q</span>
+            <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.05"><small style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.7">Saldo</small><b style="font-size:16px;font-weight:800">{{ saldoTxt }}</b></span>
+          </button>
+        </header>
+        <div style="display:flex;gap:8px;padding:12px 16px 0 20px">
+          <button onClick="{{ irCanchas }}" style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-size:14px;font-weight:900">📅 Invitar a jugar</button>
+          <button onClick="{{ abrirSaldo }}" style="flex:none;white-space:nowrap;height:40px;padding:0 16px;border:0;border-radius:10px;background:var(--sub);font-size:14px;font-weight:900">＋ Recargar</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 16px 0">
+          <button onClick="{{ abrirCalendario }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left"><span style="font-size:22px">🗓️</span><b style="font-size:14px;line-height:1.15">Mi calendario</b></button>
+          <button onClick="{{ abrirTarjeta }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px;border:0;border-radius:14px;background:#0e1b33;color:#fff;text-align:left"><span style="font-size:22px">🛳️</span><b style="font-size:14px;line-height:1.15">Tu tarjeta</b></button>
+          <button onClick="{{ abrirClases }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left"><span style="font-size:22px">🎓</span><b style="font-size:14px;line-height:1.15">Clases con profe</b></button>
+        </div>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Tus reservas</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+          <sc-for list="{{ reservasUI }}" as="r" hint-placeholder-count="2">
+            <button onClick="{{ r.abrir }}" style="position:relative;display:flex;align-items:stretch;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left;overflow:hidden">
+              <span style="width:84px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:{{ r.lado }};color:#fff;border-right:1.5px dashed rgba(255,255,255,.35)"><small style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.85">{{ r.dia }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ r.horaCorta }}</b><small style="font-size:11px;font-weight:800;opacity:.85">{{ r.ampm }}</small></span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:12px 14px">
+                <span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.club }}</b><em style="flex:none;font-style:normal;font-size:11.5px;font-weight:900;padding:3px 8px;border-radius:8px;background:{{ r.chipBg }};color:#fff">{{ r.chip }}</em></span>
+                <small style="font-size:13px;color:var(--tx2)">{{ r.cancha }} · {{ r.precioTxt }}</small>
+                <small style="font-size:12.5px;font-weight:800;color:{{ r.notaC }}">{{ r.nota }}</small>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hayInvitacion }}" hint-placeholder-val="{{ true }}">
+          <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Te invitaron</h2>
+          <div style="margin:0 16px;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:20px;background:#1e7fd0;color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center">JP</span><span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15px">Juan arma partido · ¿jugamos?</b><small style="font-size:13px;color:var(--tx2)">Sáb 17 · 9:00 a. m. · Envigado Pádel · faltan 2</small></span></div>
+            <sc-if value="{{ invPendiente }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onClick="{{ invVoy }}" style="height:42px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-size:15px;font-weight:900">Voy</button><button onClick="{{ invNo }}" style="height:42px;border:0;border-radius:10px;background:var(--sub);font-size:15px;font-weight:900">No puedo</button></div>
+            </sc-if>
+            <sc-if value="{{ invRespondida }}" hint-placeholder-val="{{ false }}"><div style="height:42px;border-radius:10px;background:var(--sub);display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:900">{{ invTxt }}</div></sc-if>
+          </div>
+        </sc-if>
+
+        <div ref="{{ canchasRef }}" style="display:flex;align-items:baseline;justify-content:space-between;margin:24px 20px 10px"><h2 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Canchas libres</h2><small style="font-size:13px;font-weight:800;color:var(--tx2)">{{ nLibres }} turnos</small></div>
+        <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none">
+          <sc-for list="{{ ciudadesUI }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.elegir }}" style="flex:none;height:36px;padding:0 14px;border:0;border-radius:10px;background:{{ c.bg }};color:{{ c.tx }};font-size:14px;font-weight:900">📍 {{ c.n }}</button></sc-for>
+        </div>
+        <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none">
+          <sc-for list="{{ diasUI }}" as="d" hint-placeholder-count="7"><button onClick="{{ d.elegir }}" style="flex:none;min-width:58px;height:56px;padding:0 10px;border:1px solid {{ d.borde }};border-radius:12px;background:{{ d.bg }};color:{{ d.tx }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0"><small style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.8">{{ d.arriba }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px;line-height:1">{{ d.abajo }}</b></button></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 16px">
+          <sc-for list="{{ libres }}" as="f" hint-placeholder-count="6">
+            <button onClick="{{ f.reservar }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:left">
+              <span style="display:flex;align-items:baseline;gap:4px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1">{{ f.hc }}</b><small style="font-size:12px;font-weight:800;color:var(--tx2)">{{ f.ampm }}</small></span>
+              <span style="font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ f.club }}</span>
+              <small style="font-size:12px;color:var(--tx2)">{{ f.cancha }}</small>
+              <span style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:8px"><b style="font-size:13.5px">{{ f.precioTxt }}</b><em style="font-style:normal;font-size:12.5px;font-weight:900;padding:4px 10px;border-radius:10px;background:var(--acc);color:#fff">Reservar</em></span>
+            </button>
+          </sc-for>
+        </div>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Torneos cerca</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+          <sc-for list="{{ torneosUI }}" as="t" hint-placeholder-count="3">
+            <div onClick="{{ t.abrir }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:{{ t.bg }};color:#fff;cursor:pointer">
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b style="font-size:16.5px;font-weight:900">🏆 {{ t.n }}</b><small style="font-size:13px;font-weight:700;opacity:.9">{{ t.meta }}</small><small style="font-size:13px;font-weight:700;opacity:.9">{{ t.cupos }} cupos · {{ t.precioTxt }} por pareja</small></span>
+              <button onClick="{{ t.yoVoy }}" style="flex:none;height:38px;padding:0 14px;border:0;border-radius:10px;background:#fff;color:{{ t.btnTx }};font-size:14px;font-weight:900">{{ t.btn }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ================= CHAT ================= -->
+      <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Chat" style="padding:58px 0 124px">
+        <header style="padding:6px 20px 12px"><h1 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:50px;line-height:.9;text-transform:uppercase">Chat</h1></header>
+        <div style="margin:0 16px 14px;height:44px;border-radius:12px;background:var(--sub);display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--tx2);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>Buscar en tu gente</div>
+        <div style="margin:0 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ chats }}" as="c" hint-placeholder-count="5">
+            <button onClick="{{ c.abrir }}" style="display:flex;align-items:center;gap:12px;width:100%;min-height:70px;padding:10px 14px;border:0;border-top:{{ c.sep }};background:none;text-align:left">
+              <span style="position:relative;width:48px;height:48px;flex:none;border-radius:24px;background:{{ c.c }};color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center">{{ c.i }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:16px">{{ c.n }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ c.hora }}</small></span><span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><small style="font-size:14px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:{{ c.peso }}">{{ c.ultimo }}</small><sc-if value="{{ c.sinLeer }}" hint-placeholder-val="{{ false }}"><i style="flex:none;min-width:20px;height:20px;border-radius:10px;background:var(--acc);color:#fff;font-style:normal;font-size:11.5px;font-weight:900;display:flex;align-items:center;justify-content:center">{{ c.n2 }}</i></sc-if></span></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ================= PERFIL ================= -->
+      <sc-if value="{{ isPerfil }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Perfil" style="padding:58px 0 124px">
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;padding:6px 18px 14px 20px"><h1 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:50px;line-height:.9;text-transform:uppercase">Perfil</h1><button onClick="{{ toggleTema }}" style="height:38px;padding:0 12px;border:0;border-radius:10px;background:var(--sub);font-size:13.5px;font-weight:900">{{ temaLabel }}</button></header>
+        <sc-if value="{{ perfilJugador }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;margin:0 16px;border-radius:20px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <div style="position:relative;height:96px;background:#0e1b33;overflow:hidden"><span style="position:absolute;right:-30px;top:-60px;width:180px;height:180px;border-radius:50%;border:22px solid var(--accd)"></span><b style="position:absolute;left:16px;top:10px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:88px;line-height:1;color:rgba(255,255,255,.1)">4ª</b></div>
+          <span style="position:absolute;left:16px;top:52px;width:88px;height:88px;border-radius:44px;background:#3346a8;color:#fff;font-weight:900;font-size:30px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--card)">DJ</span>
+          <div style="padding:52px 16px 16px;display:flex;flex-direction:column;gap:2px">
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:1;text-transform:uppercase">Demo Jugador</b>
+            <small style="font-size:14px;color:var(--tx2);font-weight:600">@demo · Pádel Club La 70 · Medellín</small>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line)">
+            <sc-for list="{{ statsPerfil }}" as="s" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;align-items:center;padding:12px 4px;border-left:{{ s.sep }}"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ s.v }}</b><small style="font-size:11.5px;font-weight:800;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em">{{ s.l }}</small></div></sc-for>
+          </div>
+        </div>
+        <div style="margin:12px 16px 0;padding:14px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:20px;text-transform:uppercase">Récord</b><small style="font-size:13px;font-weight:800;color:var(--tx2)">{{ miVD }} · {{ miPct }}</small></div>
+          <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;background:#e8475b"><i style="width:{{ miPct }};background:var(--ok)"></i></div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ ultimos }}" as="u" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><b style="width:26px;height:26px;border-radius:7px;background:{{ u.c }};color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center">{{ u.r }}</b><span style="flex:1;font-size:14px;font-weight:700">vs {{ u.vs }}</span><span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:19px">{{ u.sets }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 16px 0">
+          <button onClick="{{ abrirTarjeta }}" style="height:56px;border:0;border-radius:14px;background:#0e1b33;color:#fff;font-size:15px;font-weight:900">🛳️ Tu tarjeta</button>
+          <button onClick="{{ abrirSaldo }}" style="height:56px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:15px;font-weight:900">Saldo · {{ saldoTxt }}</button>
+          <button onClick="{{ abrirCalendario }}" style="height:56px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:15px;font-weight:900">🗓️ Mi calendario</button>
+          <button onClick="{{ abrirRanking }}" style="height:56px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:15px;font-weight:900">🏆 Ranking</button>
+          <button onClick="{{ abrirClases }}" style="grid-column:1 / -1;height:56px;border:1.5px dashed #3346a8;border-radius:14px;background:none;font-size:15px;font-weight:900">🎓 Clases con profe · {{ nMisClases }}</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ perfilProfe }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;margin:0 16px;border-radius:20px;background:#3346a8;color:#fff;overflow:hidden">
+            <span style="position:absolute;right:-40px;top:-60px;width:190px;height:190px;border-radius:50%;border:24px solid rgba(255,255,255,.12)"></span>
+            <div style="position:relative;display:flex;gap:14px;align-items:center;padding:18px 16px 4px">
+              <span style="width:72px;height:72px;flex:none;border-radius:36px;background:#0e1b33;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(255,255,255,.25)">DS</span>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                <span style="align-self:flex-start;padding:3px 9px;border-radius:8px;background:rgba(255,255,255,.16);font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap">🎓 Modo profesor</span>
+                <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1;text-transform:uppercase">Diego Salazar</b>
+                <small style="font-size:13px;opacity:.85">Técnica y bandeja · ★ 4,9 (87)</small>
+              </span>
+            </div>
+            <div style="position:relative;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;padding:14px 16px 0">
+              <sc-for list="{{ profeCifras }}" as="c" hint-placeholder-count="3"><div style="padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;flex-direction:column"><small style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.8">{{ c.l }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;line-height:1.05">{{ c.v }}</b></div></sc-for>
+            </div>
+            <div style="position:relative;display:flex;flex-wrap:wrap;gap:6px;padding:14px 16px 16px">
+              <button onClick="{{ abrirHorario }}" style="height:40px;padding:0 14px;border:0;border-radius:10px;background:#fff;color:#3346a8;font-size:14px;font-weight:900">＋ Abrir horario</button>
+              <button onClick="{{ editarProfe }}" style="height:40px;padding:0 14px;border:0;border-radius:10px;background:rgba(255,255,255,.16);font-size:14px;font-weight:900">Editar perfil</button>
+              <button onClick="{{ verComoAlumno }}" style="height:40px;padding:0 14px;border:0;border-radius:10px;background:rgba(255,255,255,.16);font-size:14px;font-weight:900">Ver como alumno</button>
+            </div>
+          </div>
+          <h2 style="margin:24px 20px 4px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Mi agenda de clases</h2>
+          <sc-for list="{{ profeAgenda }}" as="d" hint-placeholder-count="2">
+            <p style="margin:12px 20px 6px;font-size:13px;font-weight:800;color:var(--tx2)">{{ d.dia }}</p>
+            <div style="display:flex;flex-direction:column;gap:6px;margin:0 16px">
+              <sc-for list="{{ d.clases }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-left:4px solid {{ c.borde }};border-radius:12px;background:var(--card);animation:qsube .35s both">
+                  <span style="display:flex;flex-direction:column;align-items:center;min-width:58px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px;line-height:1">{{ c.hc }}</b><small style="font-size:11px;font-weight:800;color:var(--tx2)">{{ c.ampm }}</small></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                    <b style="font-size:15px">{{ c.club }} · {{ c.cancha }}</b>
+                    <small style="font-size:12.5px;color:var(--tx2)">{{ c.resumen }}</small>
+                    <span style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px"><sc-for list="{{ c.alumnosUI }}" as="a" hint-placeholder-count="1"><em style="font-style:normal;padding:2px 8px;border-radius:8px;background:{{ a.bg }};color:{{ a.tx }};font-size:12.5px;font-weight:800">{{ a.t }}</em></sc-for></span>
+                  </span>
+                  <button onClick="{{ c.cancelar }}" aria-label="Cancelar horario" style="width:32px;height:32px;flex:none;border:0;border-radius:8px;background:var(--sub);color:var(--tx2);font-weight:900">✕</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </sc-if>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- ================= OVERLAY: TARJETA ================= -->
+    <sc-if value="{{ ovTarjeta }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Tarjeta Quilombo" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:#0a1226;color:#fff;animation:qsube .35s both">
+      <div style="padding:58px 0 124px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Tu tarjeta</b></div>
+
+        <div style="position:relative;margin:0 20px;padding:20px 20px 18px;border-radius:22px;background:#0e1b33;border:1px solid rgba(220,230,255,.16);box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden">
+          <span style="position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;border:26px solid var(--accd)"></span>
+          <span style="position:absolute;left:-60px;bottom:-110px;width:220px;height:220px;border-radius:50%;border:1.5px solid rgba(255,255,255,.1)"></span>
+          <span style="position:absolute;top:-40%;left:0;width:60px;height:180%;background:rgba(255,255,255,.07);animation:qbrillo 5s ease-in-out infinite"></span>
+          <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;letter-spacing:.08em;line-height:1">QUILOMBO</b><small style="font-size:11px;font-weight:800;letter-spacing:.18em;opacity:.65">TARJETA DE SOCIO</small></span>
+          </div>
+          <div style="position:relative;display:flex;justify-content:center;margin:22px 0 14px"><div style="padding:12px;border-radius:16px;background:#fff"><sc-if value="{{ hayQR }}" hint-placeholder-val="{{ false }}"><img src="{{ qrSrc }}" alt="QR de tu tarjeta" style="display:block;width:176px;height:176px;image-rendering:pixelated"></sc-if><sc-if value="{{ sinQR }}" hint-placeholder-val="{{ true }}"><div style="width:176px;height:176px;background:#e9e6de"></div></sc-if></div></div>
+          <div style="position:relative;text-align:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px;letter-spacing:.32em;padding-left:.32em">Q7K2MX</div>
+          <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
+            <span style="display:flex;flex-direction:column"><b style="font-size:16px;font-weight:800">Demo Jugador</b><small style="font-size:12.5px;opacity:.7;font-weight:600">4ª · Medellín · La 70</small></span>
+            <span style="display:flex;flex-direction:column;align-items:flex-end"><small style="font-size:10.5px;font-weight:800;letter-spacing:.1em;opacity:.65">SALDO</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1">{{ saldoTxt }}</b></span>
+          </div>
+        </div>
+        <p style="margin:16px 28px 0;text-align:center;font-size:14.5px;line-height:1.4;color:#c9d1e3;text-wrap:pretty">Muéstrale tu tarjeta al mesero: lo que pidas se descuenta de tu saldo.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 16px 0">
+          <button onClick="{{ abrirPedir }}" style="height:64px;border:0;border-radius:14px;background:var(--accd);color:{{ qTx }};font-size:14px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:20px">🍹</span>Pedir</button>
+          <button onClick="{{ ponerTope }}" style="height:64px;border:0;border-radius:14px;background:#1b2847;font-size:14px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:20px">🛑</span>{{ topeTxt }}</button>
+          <button onClick="{{ dividirConsumo }}" style="height:64px;border:0;border-radius:14px;background:#1b2847;font-size:14px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:20px">✂️</span>Dividir</button>
+        </div>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Consumos de hoy</h2>
+        <div style="margin:0 16px;border-radius:16px;background:#111c36;overflow:hidden">
+          <sc-for list="{{ consumosUI }}" as="c" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:{{ c.sep }}">
+              <span style="width:40px;height:40px;flex:none;border-radius:10px;background:#1b2847;font-size:20px;display:flex;align-items:center;justify-content:center">{{ c.e }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:15px">{{ c.n }}</b><small style="font-size:12.5px;color:#93a0bc">Pagado con saldo ✓ · {{ c.estado }}</small></span>
+              <b style="font-size:15px">{{ c.totalTxt }}</b>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: PARTIDO / TIQUETE ================= -->
+    <sc-if value="{{ ovPartido }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Partido" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 124px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Tu partido</b></div>
+
+        <div style="position:relative;margin:0 16px;border-radius:20px;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 30px rgba(14,27,51,.08)">
+          <div style="padding:14px 18px;border-radius:20px 20px 0 0;background:{{ pt.banda }};color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;line-height:1;text-transform:uppercase">{{ pt.estado }}</b><small style="font-size:13px;font-weight:700;opacity:.9">{{ pt.estadoSub }}</small></span>
+            <sc-if value="{{ pt.apartada }}" hint-placeholder-val="{{ false }}"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;line-height:1;font-variant-numeric:tabular-nums">{{ reloj }}</b></sc-if>
+          </div>
+          <div style="padding:16px 18px 6px;display:flex;flex-direction:column;gap:2px">
+            <small style="font-size:11.5px;font-weight:800;letter-spacing:.12em;color:var(--tx2);text-transform:uppercase">Código de reserva</small>
+            <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:54px;line-height:.95;letter-spacing:.12em">{{ pt.codigo }}</b>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;padding:10px 18px 18px">
+            <sc-for list="{{ pt.datos }}" as="d" hint-placeholder-count="6"><span style="display:flex;flex-direction:column"><small style="font-size:11.5px;font-weight:800;letter-spacing:.08em;color:var(--tx2);text-transform:uppercase">{{ d.l }}</small><b style="font-size:15.5px">{{ d.v }}</b></span></sc-for>
+          </div>
+          <div style="position:relative;height:0;border-top:2px dashed var(--line);margin:0 14px"><i style="position:absolute;left:-26px;top:-13px;width:24px;height:24px;border-radius:12px;background:var(--bg);box-shadow:inset -1px 0 0 var(--line)"></i><i style="position:absolute;right:-26px;top:-13px;width:24px;height:24px;border-radius:12px;background:var(--bg);box-shadow:inset 1px 0 0 var(--line)"></i></div>
+          <div style="padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px">
+            <small style="font-size:11.5px;font-weight:800;letter-spacing:.12em;color:var(--tx2);text-transform:uppercase">Quiénes van</small>
+            <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+              <sc-for list="{{ pt.jugadores }}" as="j" hint-placeholder-count="4"><span style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="position:relative;width:46px;height:46px;border-radius:23px;background:{{ j.c }};color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;opacity:{{ j.op }}">{{ j.i }}<i style="position:absolute;right:-3px;bottom:-3px;width:20px;height:20px;border-radius:10px;background:var(--card);font-style:normal;font-size:11px;display:flex;align-items:center;justify-content:center">{{ j.e }}</i></span><small style="font-size:12px;font-weight:800">{{ j.n }}</small></span></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">La cancha</h2>
+        <div style="margin:0 16px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:15px;font-weight:700">Total cancha</span><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px">{{ pt.precioTxt }}</b></div>
+          <sc-if value="{{ pt.sinPartes }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ pt.apartada }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onClick="{{ pagarReserva }}" style="height:48px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:900">Pagar</button><button onClick="{{ abrirDividir }}" style="height:48px;border:0;border-radius:12px;background:var(--sub);font-size:16px;font-weight:900">✂️ Dividir</button></div>
+            </sc-if>
+          </sc-if>
+          <sc-for list="{{ pt.partes }}" as="p" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line)">
+              <span style="width:34px;height:34px;flex:none;border-radius:17px;background:{{ p.c }};color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center">{{ p.i }}</span>
+              <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:14.5px">{{ p.n }} · {{ p.montoTxt }}</b><small style="font-size:12.5px;font-weight:800;color:{{ p.ec }}">{{ p.estado }}</small></span>
+              <sc-if value="{{ p.cubrible }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.cubrir }}" style="height:34px;padding:0 11px;border:0;border-radius:9px;background:var(--sub);font-size:13px;font-weight:900">Cubrir su parte</button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Bar del club</h2>
+        <button onClick="{{ abrirPedir }}" style="display:flex;align-items:center;gap:12px;width:calc(100% - 32px);margin:0 16px;padding:14px;border:0;border-radius:16px;background:#0e1b33;color:#fff;text-align:left"><span style="width:44px;height:44px;border-radius:12px;background:var(--accd);font-size:22px;display:flex;align-items:center;justify-content:center">🍹</span><span style="flex:1;display:flex;flex-direction:column"><b style="font-size:16px">Pedir a la cancha</b><small style="font-size:13px;opacity:.75">Te lo llevan y se paga con tu saldo</small></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Resultado</h2>
+        <button onClick="{{ abrirResultado }}" style="width:calc(100% - 32px);margin:0 16px;height:50px;border:1.5px dashed var(--borde);border-radius:14px;background:none;font-size:15px;font-weight:900">🎾 Registrar resultado</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: RESULTADO ================= -->
+    <sc-if value="{{ ovResultado }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Resultado" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 40px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Resultado</b></div>
+        <div style="margin:0 16px 12px;padding:12px 14px;border-radius:14px;background:{{ res.bannerBg }};color:#fff;display:flex;align-items:center;gap:10px"><span style="font-size:22px">{{ res.icono }}</span><span style="display:flex;flex-direction:column"><b style="font-size:15.5px">{{ res.banner }}</b><small style="font-size:13px;opacity:.9">{{ res.bannerSub }}</small></span></div>
+        <div style="margin:0 16px;border-radius:18px;background:#0e1b33;color:#fff;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.06);font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase"><span>Liga La 70 · 4ª · Cancha 2</span><span style="display:flex;gap:16px"><span style="width:28px;text-align:center">S1</span><span style="width:28px;text-align:center">S2</span><span style="width:28px;text-align:center">S3</span></span></div>
+          <sc-for list="{{ res.filas }}" as="f" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:10px;padding:14px;border-top:1px solid rgba(255,255,255,.08)">
+              <span style="display:flex"><sc-for list="{{ f.caras }}" as="p" hint-placeholder-count="2"><span style="width:30px;height:30px;margin-right:-6px;border-radius:15px;background:{{ p.c }};box-shadow:0 0 0 2px #0e1b33;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center">{{ p.i }}</span></sc-for></span>
+              <span style="flex:1;padding-left:10px;font-size:15px;font-weight:{{ f.peso }}">{{ f.pareja }}</span>
+              <span style="display:flex;gap:16px"><sc-for list="{{ f.sets }}" as="s" hint-placeholder-count="3"><b style="width:28px;text-align:center;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:1;color:{{ s.c }}">{{ s.v }}</b></sc-for></span>
+            </div>
+          </sc-for>
+        </div>
+        <small style="display:block;margin:10px 20px 0;font-size:13px;color:var(--tx2)">Lo propuso Andrés Gómez · hoy 10:42 a. m.</small>
+        <h2 style="margin:22px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Confirmaciones</h2>
+        <div style="margin:0 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ res.confs }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:{{ c.sep }}"><span style="width:38px;height:38px;border-radius:19px;background:{{ c.c }};color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center">{{ c.i }}</span><b style="flex:1;font-size:15px">{{ c.n }}</b><span style="font-size:13px;font-weight:900;color:{{ c.ec }}">{{ c.e }}</span></div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ res.puedeConfirmar }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 16px 0"><button onClick="{{ confirmarRes }}" style="height:52px;border:0;border-radius:12px;background:var(--ok);color:#fff;font-size:16px;font-weight:900">✓ Confirmo</button><button onClick="{{ disputarRes }}" style="height:52px;border:0;border-radius:12px;background:var(--sub);font-size:15px;font-weight:900">No estoy de acuerdo</button></div>
+        </sc-if>
+        <sc-if value="{{ res.valido }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ abrirRanking }}" style="display:block;width:calc(100% - 32px);margin:16px 16px 0;height:52px;border:0;border-radius:12px;background:#0e1b33;color:#fff;font-size:16px;font-weight:900;animation:qpop .5s both">Ver cómo quedó el ranking ›</button>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: RANKING ================= -->
+    <sc-if value="{{ ovRanking }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Ranking" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 130px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Ranking nacional</b></div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;margin:6px 16px 0">
+          <sc-for list="{{ podio }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+              <span style="width:{{ p.av }};height:{{ p.av }};border-radius:50%;background:{{ p.c }};color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px {{ p.aro }}">{{ p.i }}</span>
+              <b style="font-size:13.5px;text-align:center;line-height:1.1">{{ p.n }}</b>
+              <div style="width:100%;height:{{ p.h }};border-radius:12px 12px 0 0;background:{{ p.bg }};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:8px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;line-height:1">{{ p.pos }}</b><small style="font-size:12px;font-weight:800;opacity:.9">{{ p.pts }}</small></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:6px;overflow-x:auto;padding:14px 16px 10px;scrollbar-width:none">
+          <sc-for list="{{ filtrosRank }}" as="f" hint-placeholder-count="5"><button onClick="{{ f.elegir }}" style="flex:none;height:34px;padding:0 13px;border:0;border-radius:10px;background:{{ f.bg }};color:{{ f.tx }};font-size:13.5px;font-weight:900">{{ f.t }}</button></sc-for>
+        </div>
+        <div style="margin:0 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ tabla }}" as="r" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:{{ r.sep }};background:{{ r.bg }}">
+              <b style="width:34px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:20px">{{ r.pos }}</b>
+              <span style="width:34px;height:34px;flex:none;border-radius:17px;background:{{ r.c }};color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center">{{ r.i }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.n }}</b><small style="font-size:12px;color:var(--tx2)">{{ r.cat }} · {{ r.ciu }} · {{ r.vd }}</small></span>
+              <span style="display:flex;flex-direction:column;align-items:flex-end"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:20px;line-height:1">{{ r.pts }}</b><small style="font-size:11.5px;font-weight:800;color:{{ r.deltaC }}">{{ r.delta }}</small></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="position:absolute;left:12px;right:12px;bottom:34px;padding:12px 16px;border-radius:16px;background:#0e1b33;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 12px 30px rgba(14,27,51,.3)"><span style="display:flex;flex-direction:column"><small style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.7">TU POSICIÓN</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:1">#{{ miPos }}</b></span><span style="display:flex;flex-direction:column;align-items:flex-end"><b style="font-size:16px">{{ misPtsTxt }} pts</b><small style="font-size:12.5px;opacity:.75">{{ miVD }} · {{ miPct }}</small></span></div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: SALDO ================= -->
+    <sc-if value="{{ ovSaldo }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Saldo" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 40px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Saldo Quilombo</b></div>
+        <div style="margin:0 20px;display:flex;flex-direction:column;gap:2px"><small style="font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--tx2)">DISPONIBLE</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:72px;line-height:.95">{{ saldoTxt }}</b><small style="font-size:14px;color:var(--tx2)">Paga cancha, bar, torneos y clases.</small></div>
+        <h2 style="margin:22px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Recargar</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 16px">
+          <sc-for list="{{ montosRecarga }}" as="m" hint-placeholder-count="4"><button onClick="{{ m.elegir }}" style="height:52px;border:1.5px solid {{ m.borde }};border-radius:12px;background:{{ m.bg }};color:{{ m.tx }};font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px">{{ m.t }}</button></sc-for>
+        </div>
+        <button onClick="{{ recargar }}" style="display:block;width:calc(100% - 32px);margin:10px 16px 0;height:52px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900">Recargar {{ recargaTxt }}</button>
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Movimientos</h2>
+        <div style="margin:0 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ movsUI }}" as="m" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:{{ m.sep }}"><span style="width:38px;height:38px;flex:none;border-radius:10px;background:var(--sub);font-size:18px;display:flex;align-items:center;justify-content:center">{{ m.e }}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:14.5px">{{ m.t }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ m.s }}</small></span><b style="font-size:15px;color:{{ m.c }}">{{ m.v }}</b></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: CHAT ROOM ================= -->
+    <sc-if value="{{ ovChat }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Conversación" style="position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);animation:qsube .3s both">
+      <div style="display:flex;align-items:center;gap:12px;padding:58px 16px 12px;border-bottom:1px solid var(--line);background:var(--card)"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><span style="width:38px;height:38px;border-radius:19px;background:{{ sala.c }};color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center">{{ sala.i }}</span><span style="display:flex;flex-direction:column"><b style="font-size:16px">{{ sala.n }}</b><small style="font-size:12.5px;color:var(--ok);font-weight:700">en línea</small></span></div>
+      <div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;scrollbar-width:none;padding:14px 14px 8px;display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ sala.msgs }}" as="m" hint-placeholder-count="4">
+          <div style="align-self:{{ m.lado }};max-width:76%;padding:9px 13px;border-radius:{{ m.radio }};background:{{ m.bg }};color:{{ m.tx }};font-size:15px;line-height:1.35">{{ m.t }}</div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:8px;padding:10px 12px 34px;background:var(--card);border-top:1px solid var(--line)">
+        <input value="{{ borrador }}" onChange="{{ escribir }}" onKeyDown="{{ teclaChat }}" placeholder="Escribe un mensaje" style="flex:1;height:44px;border:0;border-radius:22px;background:var(--sub);color:var(--tx);padding:0 16px;font:inherit;font-size:15.5px;outline:none">
+        <button onClick="{{ enviarMsg }}" aria-label="Enviar" style="width:44px;height:44px;border:0;border-radius:22px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: CLASES ================= -->
+    <sc-if value="{{ ovClases }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Clases con profe" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 124px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Clases con profe</b></div>
+        <div style="position:relative;margin:0 16px;padding:16px 18px;border-radius:18px;background:#3346a8;color:#fff;overflow:hidden">
+          <span style="position:absolute;right:-50px;bottom:-70px;width:170px;height:170px;border-radius:50%;border:22px solid rgba(255,255,255,.12)"></span>
+          <b style="position:relative;display:block;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px;line-height:.95;text-transform:uppercase">Elige con quién mejorar</b>
+          <p style="position:relative;margin:8px 0 0;font-size:14px;line-height:1.4;opacity:.9;text-wrap:pretty">Reservas, pagas con tu saldo y la cancha queda lista a nombre de la clase.</p>
+        </div>
+        <sc-if value="{{ hayMisClases }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:22px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Mis clases</h2>
+          <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+            <sc-for list="{{ misClasesUI }}" as="c" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ok)">
+                <span style="width:42px;height:42px;flex:none;border-radius:21px;background:{{ c.c }};color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center">{{ c.i }}</span>
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:15px">Clase con {{ c.corto }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ c.diaTxt }} · {{ c.hora }} · {{ c.club }}</small></span>
+                <button onClick="{{ c.cancelar }}" style="height:34px;padding:0 11px;border:0;border-radius:9px;background:var(--sub);font-size:12.5px;font-weight:900">Cancelar</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px">
+          <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none"><sc-for list="{{ fCiudadUI }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.elegir }}" style="flex:none;height:34px;padding:0 12px;border:0;border-radius:10px;background:{{ f.bg }};color:{{ f.tx }};font-size:13.5px;font-weight:800">{{ f.t }}</button></sc-for></div>
+          <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none"><sc-for list="{{ fNivelUI }}" as="f" hint-placeholder-count="6"><button onClick="{{ f.elegir }}" style="flex:none;height:34px;padding:0 12px;border:0;border-radius:10px;background:{{ f.bg }};color:{{ f.tx }};font-size:13.5px;font-weight:800">{{ f.t }}</button></sc-for></div>
+          <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none"><sc-for list="{{ fTipoUI }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.elegir }}" style="flex:none;height:34px;padding:0 12px;border:0;border-radius:10px;background:{{ f.bg }};color:{{ f.tx }};font-size:13.5px;font-weight:800">{{ f.t }}</button></sc-for></div>
+        </div>
+        <h2 style="margin:20px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">{{ nProfesTxt }}</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;margin:0 16px">
+          <sc-for list="{{ profesUI }}" as="p" hint-placeholder-count="3">
+            <button onClick="{{ p.abrir }}" style="display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line);border-top:4px solid #3346a8;border-radius:14px;background:var(--card);text-align:left">
+              <span style="display:flex;align-items:center;gap:12px;min-width:0">
+                <span style="width:56px;height:56px;flex:none;border-radius:28px;background:{{ p.c }};color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center">{{ p.i }}</span>
+                <span style="min-width:0;display:flex;flex-direction:column;gap:1px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:22px;line-height:1.05;text-transform:uppercase">{{ p.n }}</b><small style="font-size:13px;font-weight:700">🎓 {{ p.esp }}</small><small style="font-size:12.5px;color:var(--tx2);font-weight:600"><span style="color:#b98500">★</span> {{ p.estTxt }} ({{ p.res }}) · {{ p.anos }} años</small></span>
+              </span>
+              <span style="align-self:flex-start;padding:3px 9px;border-radius:8px;background:rgba(51,70,168,.12);color:#3346a8;font-size:12.5px;font-weight:800">{{ p.nivelesTxt }}</span>
+              <small style="font-size:12.5px;color:var(--tx2)">📍 {{ p.clubesTxt }}</small>
+              <span style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-top:1px dashed var(--line);padding-top:8px"><span style="font-size:13px;color:var(--tx2)">desde <b style="color:var(--tx);font-size:15px">{{ p.desdeTxt }}</b></span><span style="font-size:12px;font-weight:800;color:{{ p.proxC }}">{{ p.proxTxt }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: PROFESOR ================= -->
+    <sc-if value="{{ ovProfesor }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Perfil del profe" style="position:absolute;inset:0;z-index:31;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 124px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">{{ pf.corto }}</b></div>
+        <section style="position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;margin:0 16px;padding:20px 14px 18px;border-radius:18px;background:#3346a8;color:#fff;text-align:center;overflow:hidden">
+          <span style="position:absolute;left:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:22px solid rgba(255,255,255,.1)"></span>
+          <span style="position:relative;width:96px;height:96px;border-radius:48px;background:{{ pf.c }};font-weight:900;font-size:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,255,255,.25)">{{ pf.i }}</span>
+          <span style="position:relative;margin-top:8px;padding:3px 9px;border-radius:8px;background:rgba(255,255,255,.16);font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap">🎓 Profesor</span>
+          <b style="position:relative;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:36px;line-height:1;text-transform:uppercase">{{ pf.n }}</b>
+          <b style="position:relative;font-size:16px">{{ pf.esp }}</b>
+          <span style="position:relative;font-size:13.5px;opacity:.88"><span style="color:#ffc247">★</span> {{ pf.estTxt }} · {{ pf.res }} reseñas · {{ pf.anos }} años enseñando</span>
+          <div style="position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px"><sc-for list="{{ pf.chips }}" as="c" hint-placeholder-count="4"><span style="padding:4px 9px;border-radius:8px;background:rgba(255,255,255,.14);font-size:12.5px;font-weight:700;white-space:nowrap">{{ c }}</span></sc-for></div>
+        </section>
+        <p style="margin:14px 20px 0;font-size:15px;line-height:1.45;text-wrap:pretty">{{ pf.bio }}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 16px 0">
+          <div style="padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px"><small style="font-size:12.5px;font-weight:800;color:var(--tx2)">👤 Individual</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ pf.piTxt }}</b><small style="font-size:12px;color:var(--tx2)">90 min · cancha incluida</small></div>
+          <div style="padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px"><small style="font-size:12.5px;font-weight:800;color:var(--tx2)">👥 Grupal</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ pf.pgTxt }}</b><small style="font-size:12px;color:var(--tx2)">por persona · hasta 4</small></div>
+        </div>
+        <h2 style="margin:22px 20px 4px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Horarios disponibles</h2>
+        <sc-for list="{{ pf.porDia }}" as="d" hint-placeholder-count="2">
+          <p style="margin:12px 20px 6px;font-size:13px;font-weight:800;color:var(--tx2)">{{ d.dia }}</p>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 16px">
+            <sc-for list="{{ d.clases }}" as="c" hint-placeholder-count="2">
+              <button onClick="{{ c.reservar }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border:1.5px solid {{ c.borde }};border-radius:12px;background:var(--card);text-align:left;opacity:{{ c.op }}">
+                <span style="display:flex;align-items:baseline;gap:4px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;line-height:1">{{ c.hc }}</b><small style="font-size:12px;font-weight:800;color:var(--tx2)">{{ c.ampm }}</small></span>
+                <span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ c.club }}</span>
+                <small style="font-size:12px;color:var(--tx2)">{{ c.tipoTxt }}</small>
+                <span style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:6px"><b style="font-size:14px">{{ c.precioTxt }}</b><em style="font-style:normal;font-size:12px;font-weight:900;padding:3px 8px;border-radius:8px;background:{{ c.chipBg }};color:{{ c.chipTx }}">{{ c.chip }}</em></span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-for>
+        <sc-if value="{{ pf.sinHorarios }}" hint-placeholder-val="{{ false }}"><p style="margin:8px 20px 0;font-size:14px;color:var(--tx2)">No tiene horarios libres esta semana.</p></sc-if>
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Reseñas</h2>
+        <sc-if value="{{ pf.puedeResenar }}" hint-placeholder-val="{{ false }}"><button onClick="{{ abrirResena }}" style="display:block;width:calc(100% - 32px);margin:0 16px 10px;height:48px;border:0;border-radius:12px;background:#3346a8;color:#fff;font-size:15px;font-weight:900">★ Cuéntale a otros cómo te fue</button></sc-if>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+          <sc-for list="{{ pf.resenas }}" as="r" hint-placeholder-count="2">
+            <div style="padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line)">
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:30px;height:30px;border-radius:15px;background:{{ r.c }};color:#fff;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center">{{ r.i }}</span><b style="font-size:14.5px">{{ r.autor }}</b><span style="color:#f5b301;font-size:14px;letter-spacing:1px">{{ r.estrellas }}</span><small style="margin-left:auto;font-size:12px;color:var(--tx3)">{{ r.fecha }}</small></span>
+              <p style="margin:6px 0 0;font-size:14px;line-height:1.4">{{ r.texto }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: CALENDARIO ================= -->
+    <sc-if value="{{ ovCalendario }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Calendario" style="position:absolute;inset:0;z-index:30;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="padding:58px 0 124px">
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:var(--sub);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;text-transform:uppercase">Mi calendario</b></div>
+        <div style="margin:0 16px;padding:14px 12px 12px;border-radius:18px;background:var(--card);border:1px solid var(--line)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 6px 10px"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Octubre 2026</b><small style="font-size:12.5px;font-weight:800;color:var(--tx2)">{{ nEventosMes }} planes</small></div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center;font-size:11.5px;font-weight:800;color:var(--tx3);padding-bottom:4px"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">
+            <sc-for list="{{ celdas }}" as="d" hint-placeholder-count="35">
+              <button onClick="{{ d.elegir }}" style="height:46px;border:{{ d.borde }};border-radius:10px;background:{{ d.bg }};color:{{ d.tx }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;visibility:{{ d.vis }}">
+                <b style="font-size:14.5px;font-weight:{{ d.peso }}">{{ d.n }}</b>
+                <span style="display:flex;gap:3px;height:6px"><sc-for list="{{ d.puntos }}" as="p" hint-placeholder-count="0"><i style="width:6px;height:6px;border-radius:3px;background:{{ p }}"></i></sc-for></span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:12px 6px 0;font-size:12px;font-weight:700;color:var(--tx2)"><span style="display:flex;align-items:center;gap:5px"><i style="width:8px;height:8px;border-radius:4px;background:var(--acc)"></i>Mis partidos</span><span style="display:flex;align-items:center;gap:5px"><i style="width:8px;height:8px;border-radius:4px;background:#b98500"></i>Mis torneos</span><span style="display:flex;align-items:center;gap:5px"><i style="width:8px;height:8px;border-radius:4px;background:#3346a8"></i>Clases</span><span style="display:flex;align-items:center;gap:5px"><i style="width:10px;height:10px;border-radius:3px;border:1.5px solid #1e7fd0"></i>Torneos que te sirven</span></div>
+        </div>
+        <h2 style="margin:22px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">{{ calTitulo }}</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+          <sc-for list="{{ agendaDia }}" as="a" hint-placeholder-count="1">
+            <button onClick="{{ a.abrir }}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid {{ a.c }};border-radius:12px;background:var(--card);text-align:left"><span style="font-size:22px">{{ a.e }}</span><span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:15px">{{ a.t }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ a.s }}</small></span></button>
+          </sc-for>
+          <sc-if value="{{ diaLibre }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;border-radius:12px;border:1.5px dashed var(--borde);text-align:center;font-size:14.5px;color:var(--tx2)">Día libre. ¿Armamos partido? 🎾</div></sc-if>
+        </div>
+        <h2 style="margin:24px 20px 10px;font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Torneos para ti</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:0 16px">
+          <sc-for list="{{ torneosParaTi }}" as="t" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #1e7fd0;border-radius:14px;background:var(--card)">
+              <span style="width:44px;flex:none;display:flex;flex-direction:column;align-items:center"><small style="font-size:11px;font-weight:800;color:var(--tx2)">{{ t.mes }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;line-height:1">{{ t.diaN }}</b></span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><b style="font-size:15px">{{ t.n }}</b><small style="font-size:12.5px;color:var(--tx2)">{{ t.precioTxt }} · {{ t.cupos }} cupos</small></span>
+              <button onClick="{{ t.yoVoy }}" style="flex:none;height:36px;padding:0 13px;border:0;border-radius:10px;background:{{ t.btnBg }};color:#fff;font-size:13.5px;font-weight:900">{{ t.btn }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= OVERLAY: TORNEO ================= -->
+    <sc-if value="{{ ovTorneo }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Torneo" style="position:absolute;inset:0;z-index:31;overflow-y:auto;scrollbar-width:none;background:var(--bg);animation:qsube .35s both">
+      <div style="position:relative;padding:58px 0 22px;background:{{ tv.bg }};color:#fff;overflow:hidden">
+        <span style="position:absolute;right:-60px;top:10px;width:220px;height:220px;border-radius:50%;border:26px solid rgba(255,255,255,.14)"></span>
+        <div style="position:relative;display:flex;align-items:center;gap:12px;padding:4px 16px 14px"><button onClick="{{ cerrarOv }}" aria-label="Volver" style="width:40px;height:40px;border:0;border-radius:20px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><small style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.85">Torneo · {{ tv.club }}</small></div>
+        <b style="position:relative;display:block;margin:0 20px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:46px;line-height:.92;text-transform:uppercase">{{ tv.n }}</b>
+        <span style="position:relative;display:block;margin:8px 20px 0;font-size:14.5px;font-weight:700;opacity:.9">{{ tv.fechas }}</span>
+      </div>
+      <div style="padding:0 0 124px">
+        <sc-if value="{{ tv.hayEstado }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:14px 16px 0;padding:12px 14px;border-radius:14px;background:{{ tv.estadoBg }};color:#fff;display:flex;align-items:center;gap:10px;animation:qpop .45s both"><span style="font-size:22px">{{ tv.estadoIco }}</span><span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15.5px">{{ tv.estadoT }}</b><small style="font-size:13px;opacity:.9">{{ tv.estadoS }}</small></span><sc-if value="{{ tv.rechazado }}" hint-placeholder-val="{{ false }}"><button onClick="{{ abrirInscripcion }}" style="height:34px;padding:0 11px;border:0;border-radius:9px;background:#fff;color:#e8475b;font-size:13px;font-weight:900">Subir otro</button></sc-if></div>
+        </sc-if>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 16px 0">
+          <sc-for list="{{ tv.cifras }}" as="c" hint-placeholder-count="3"><div style="padding:12px 10px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px"><small style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2)">{{ c.l }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:24px;line-height:1">{{ c.v }}</b></div></sc-for>
+        </div>
+        <div style="margin:12px 16px 0;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden">
+          <sc-for list="{{ tv.filas }}" as="f" hint-placeholder-count="3"><div style="display:flex;gap:12px;padding:12px 14px;border-top:{{ f.sep }}"><span style="font-size:20px">{{ f.e }}</span><span style="display:flex;flex-direction:column"><small style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2)">{{ f.l }}</small><b style="font-size:15px;line-height:1.35">{{ f.v }}</b></span></div></sc-for>
+        </div>
+        <p style="margin:14px 20px 0;font-size:15px;line-height:1.45;text-wrap:pretty">{{ tv.desc }}</p>
+        <sc-if value="{{ tv.puedeInscribir }}" hint-placeholder-val="{{ true }}"><button onClick="{{ abrirInscripcion }}" style="display:block;width:calc(100% - 32px);margin:18px 16px 0;height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:17px;font-weight:900">Yo voy · {{ tv.precioTxt }} por pareja</button></sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ================= HOJAS ================= -->
+    <div style="position:absolute;inset:0;z-index:50;pointer-events:{{ hojaPE }}">
+      <div onClick="{{ cerrarHoja }}" style="position:absolute;inset:0;background:rgba(10,18,38,.45);opacity:{{ hojaOp }};transition:opacity .25s"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;scrollbar-width:none;border-radius:24px 24px 0 0;background:var(--card);color:var(--tx);padding:0 0 34px;transform:{{ hojaT }};transition:transform .38s cubic-bezier(.32,.72,0,1)">
+        <div style="width:36px;height:5px;border-radius:3px;background:var(--tx3);opacity:.5;margin:8px auto 4px"></div>
+
+        <sc-if value="{{ hReservar }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Reservar cancha</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">{{ sel.club }} · {{ sel.dir }}</small></span></div>
+            <div style="display:flex;align-items:stretch;border-radius:16px;background:#0e1b33;color:#fff;overflow:hidden">
+              <span style="flex:1;padding:14px 16px;display:flex;flex-direction:column"><small style="font-size:11px;font-weight:800;letter-spacing:.1em;opacity:.7">{{ sel.diaLargo }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:36px;line-height:1">{{ sel.hora }}</b><small style="font-size:13px;opacity:.8">hasta {{ sel.fin }} · 90 min</small></span>
+              <span style="padding:14px 16px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;border-left:1.5px dashed rgba(255,255,255,.2)"><small style="font-size:11px;font-weight:800;letter-spacing:.1em;opacity:.7">PRECIO</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1">{{ sel.precioTxt }}</b></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Cancha</small>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px"><sc-for list="{{ tiposCancha }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.elegir }}" style="height:40px;border:1.5px solid {{ t.borde }};border-radius:10px;background:{{ t.bg }};font-size:13.5px;font-weight:900">{{ t.n }}</button></sc-for></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">¿Con quién juegas? (opcional)</small>
+              <div style="display:flex;gap:10px"><sc-for list="{{ conQuien }}" as="g" hint-placeholder-count="4"><button onClick="{{ g.toggle }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:0"><span style="width:48px;height:48px;border-radius:24px;background:{{ g.c }};color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:{{ g.aro }};opacity:{{ g.op }}">{{ g.i }}</span><small style="font-size:12px;font-weight:800">{{ g.corto }}</small></button></sc-for></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+              <button onClick="{{ reservarYPagar }}" style="height:52px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900">Reservar y pagar · {{ sel.precioTxt }}</button>
+              <button onClick="{{ apartar }}" style="height:52px;border:0;border-radius:12px;background:var(--sub);font-size:16px;font-weight:900">Apartar (pagas después)</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hPagar }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <sc-if value="{{ pagoElegir }}" hint-placeholder-val="{{ true }}">
+              <span style="display:flex;flex-direction:column"><small style="font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">{{ pago.concepto }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:56px;line-height:1">{{ pago.montoTxt }}</b></span>
+              <div style="display:flex;flex-direction:column;border-radius:16px;border:1px solid var(--line);overflow:hidden">
+                <sc-for list="{{ metodos }}" as="m" hint-placeholder-count="4">
+                  <button onClick="{{ m.elegir }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;border:0;border-top:{{ m.sep }};background:{{ m.bg }};text-align:left">
+                    <span style="width:38px;height:38px;flex:none;border-radius:10px;background:{{ m.ic }};color:#fff;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center">{{ m.sigla }}</span>
+                    <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15px">{{ m.n }}</b><small style="font-size:12.5px;color:{{ m.subC }};font-weight:700">{{ m.s }}</small></span>
+                    <span style="width:22px;height:22px;border-radius:11px;border:2px solid {{ m.radio }};display:flex;align-items:center;justify-content:center"><i style="width:10px;height:10px;border-radius:5px;background:{{ m.punto }}"></i></span>
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ pago.falta }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:#ffe9b8;color:#7a4e00"><b style="font-size:14px">Te faltan {{ pago.faltaTxt }}</b><button onClick="{{ recargaRapida }}" style="height:34px;padding:0 12px;border:0;border-radius:9px;background:#0e1b33;color:#fff;font-size:13px;font-weight:900">Recargar</button></div></sc-if>
+              <button onClick="{{ confirmarPago }}" disabled="{{ pago.falta }}" style="height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:17px;font-weight:900;opacity:{{ pago.op }}">Pagar {{ pago.montoTxt }}</button>
+            </sc-if>
+            <sc-if value="{{ pagoProcesando }}" hint-placeholder-val="{{ false }}">
+              <div style="height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px"><i style="width:54px;height:54px;border-radius:50%;border:5px solid var(--sub);border-top-color:var(--acc);animation:qgira .8s linear infinite"></i><b style="font-size:17px">Procesando…</b></div>
+            </sc-if>
+            <sc-if value="{{ pagoOk }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0 4px;text-align:center">
+                <span style="width:76px;height:76px;border-radius:38px;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;animation:qpop .5s both"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+                <b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px;text-transform:uppercase;line-height:1;margin-top:6px">Pago aprobado</b>
+                <span style="font-size:15px;color:var(--tx2)">{{ pago.montoTxt }} · {{ pago.metodoTxt }}</span>
+                <small style="font-size:13px;color:var(--tx2)">Referencia {{ pago.ref }}</small>
+              </div>
+              <button onClick="{{ cerrarHoja }}" style="height:52px;border:0;border-radius:12px;background:#0e1b33;color:#fff;font-size:16px;font-weight:900">¡Listo!</button>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hDividir }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Dividir la cancha</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Cada uno paga su parte con su saldo · {{ pt.precioTxt }}</small></span>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px"><sc-for list="{{ modosDiv }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.elegir }}" style="height:44px;border:1.5px solid {{ m.borde }};border-radius:10px;background:{{ m.bg }};font-size:13.5px;font-weight:900">{{ m.n }}</button></sc-for></div>
+            <div style="border-radius:16px;border:1px solid var(--line);overflow:hidden">
+              <sc-for list="{{ previewDiv }}" as="p" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:{{ p.sep }}"><span style="width:36px;height:36px;border-radius:18px;background:{{ p.c }};color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center">{{ p.i }}</span><b style="flex:1;font-size:15px">{{ p.n }}</b><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:24px">{{ p.montoTxt }}</b></div></sc-for>
+            </div>
+            <button onClick="{{ confirmarDividir }}" style="height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900">Enviar cobros y pagar mi parte</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hPedir }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:12px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Pedir a la cancha</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Pádel Club La 70 · te lo llevan a la Cancha 2</small></span>
+            <div style="border-radius:16px;border:1px solid var(--line);overflow:hidden">
+              <sc-for list="{{ carta }}" as="p" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:{{ p.sep }}">
+                  <span style="width:40px;height:40px;flex:none;border-radius:10px;background:var(--sub);font-size:20px;display:flex;align-items:center;justify-content:center">{{ p.e }}</span>
+                  <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:15px">{{ p.n }}</b><small style="font-size:13px;color:var(--tx2)">{{ p.precioTxt }}</small></span>
+                  <span style="display:flex;align-items:center;gap:6px"><button onClick="{{ p.menos }}" style="width:34px;height:34px;border:0;border-radius:17px;background:var(--sub);font-size:18px;font-weight:900;opacity:{{ p.opMenos }}">−</button><b style="width:20px;text-align:center;font-size:16px">{{ p.q }}</b><button onClick="{{ p.mas }}" style="width:34px;height:34px;border:0;border-radius:17px;background:var(--acc);color:#fff;font-size:18px;font-weight:900">+</button></span>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ pagarPedido }}" disabled="{{ pedidoVacio }}" style="height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900;opacity:{{ pedidoOp }}">Pagar {{ pedidoTxt }} con saldo</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hClase }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Reservar clase</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Con {{ cl.profeN }}</small></span>
+            <div style="display:flex;align-items:stretch;border-radius:16px;background:#3346a8;color:#fff;overflow:hidden">
+              <span style="flex:1;padding:14px 16px;display:flex;flex-direction:column"><small style="font-size:11px;font-weight:800;letter-spacing:.1em;opacity:.75">{{ cl.diaTxt }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:36px;line-height:1">{{ cl.hora }}</b><small style="font-size:13px;opacity:.85">{{ cl.club }} · {{ cl.cancha }}</small></span>
+              <span style="padding:14px 16px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;border-left:1.5px dashed rgba(255,255,255,.25)"><small style="font-size:11px;font-weight:800;letter-spacing:.1em;opacity:.75">PRECIO</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;line-height:1">{{ cl.precioTxt }}</b></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:12px 14px;border-radius:12px;background:var(--sub);font-size:14px;font-weight:700"><span>{{ cl.tipoTxt }}</span><span>90 min</span></div>
+            <p style="margin:0;font-size:13.5px;line-height:1.4;color:var(--tx2)">La cancha queda reservada en el club a nombre de la clase. Si cancelas, te devolvemos el saldo.</p>
+            <button onClick="{{ pagarClase }}" style="height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900">Reservar y pagar · {{ cl.precioTxt }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hInscripcion }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Inscripción</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">{{ tv.n }} · {{ tv.precioTxt }} por pareja</small></span>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Categoría</small><div style="display:flex;gap:6px"><sc-for list="{{ inCats }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.elegir }}" style="height:40px;min-width:56px;padding:0 12px;border:1.5px solid {{ c.borde }};border-radius:10px;background:{{ c.bg }};font-size:14px;font-weight:900">{{ c.t }}</button></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Pareja</small><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ inParejas }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.elegir }}" style="height:40px;padding:0 12px;border:1.5px solid {{ c.borde }};border-radius:10px;background:{{ c.bg }};font-size:14px;font-weight:900">{{ c.t }}</button></sc-for></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--sub)"><sc-for list="{{ inMetodos }}" as="m" hint-placeholder-count="2"><button onClick="{{ m.elegir }}" style="height:40px;border:0;border-radius:9px;background:{{ m.bg }};box-shadow:{{ m.sombra }};font-size:14px;font-weight:900">{{ m.t }}</button></sc-for></div>
+            <sc-if value="{{ inComprobante }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:14px;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px">
+                <small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Transfiere a la cuenta del club</small>
+                <b style="font-size:15.5px">Pádel Club La 70 · Bancolombia ahorros</b>
+                <span style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:26px;letter-spacing:.04em">031-458921-07</span>
+                <span style="font-size:14px;color:var(--tx2)">Monto: <b style="color:var(--tx)">{{ tv.precioTxt }}</b> · Nequi también vale</span>
+              </div>
+              <sc-if value="{{ sinAdjunto }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onClick="{{ adjuntar }}" style="height:48px;border:1.5px dashed var(--borde);border-radius:12px;background:none;font-size:14px;font-weight:900">📷 Tomar foto</button><button onClick="{{ adjuntar }}" style="height:48px;border:1.5px dashed var(--borde);border-radius:12px;background:none;font-size:14px;font-weight:900">🖼️ Elegir captura</button></div>
+              </sc-if>
+              <sc-if value="{{ conAdjunto }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:var(--accs);animation:qpop .4s both"><span style="width:44px;height:58px;border-radius:6px;background:#3346a8;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;box-sizing:border-box">Nequi</span><span style="flex:1;display:flex;flex-direction:column"><b style="font-size:14.5px">comprobante_nequi.jpg</b><small style="font-size:12.5px;color:var(--tx2)">{{ tv.precioTxt }} · listo para enviar</small></span><button onClick="{{ quitarAdjunto }}" style="width:30px;height:30px;border:0;border-radius:15px;background:var(--sub);font-weight:900">✕</button></div>
+              </sc-if>
+            </sc-if>
+            <button onClick="{{ enviarInscripcion }}" disabled="{{ inDeshabilitado }}" style="height:54px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16.5px;font-weight:900;opacity:{{ inOp }}">{{ inBoton }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hHorario }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Abrir horario de clase</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Los jugadores lo ven en tu perfil y lo reservan</small></span>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">1 · Club</small><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ ahClubes }}" as="c" hint-placeholder-count="2"><button onClick="{{ c.elegir }}" style="height:40px;padding:0 12px;border:1.5px solid {{ c.borde }};border-radius:10px;background:{{ c.bg }};font-size:13.5px;font-weight:900">{{ c.t }}</button></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">2 · Día</small><div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none"><sc-for list="{{ ahDias }}" as="d" hint-placeholder-count="7"><button onClick="{{ d.elegir }}" style="flex:none;min-width:54px;height:50px;border:1.5px solid {{ d.borde }};border-radius:10px;background:{{ d.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center"><small style="font-size:10.5px;font-weight:800;text-transform:uppercase;opacity:.75">{{ d.arriba }}</small><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:20px;line-height:1">{{ d.abajo }}</b></button></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">3 · Cancha libre</small><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px"><sc-for list="{{ ahLibres }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.elegir }}" style="display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;border:1.5px solid {{ f.borde }};border-radius:10px;background:{{ f.bg }};text-align:left"><b style="font-size:15px">{{ f.hora }}</b><small style="font-size:12px;color:var(--tx2)">{{ f.cancha }}</small></button></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">4 · Tipo y precio</small>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--sub)"><sc-for list="{{ ahTipos }}" as="m" hint-placeholder-count="2"><button onClick="{{ m.elegir }}" style="height:40px;border:0;border-radius:9px;background:{{ m.bg }};box-shadow:{{ m.sombra }};font-size:14px;font-weight:900">{{ m.t }}</button></sc-for></div>
+              <div style="display:flex;gap:8px">
+                <sc-if value="{{ ahGrupal }}" hint-placeholder-val="{{ true }}"><div style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px;height:50px;border-radius:12px;background:var(--sub)"><span style="font-size:14px;font-weight:800">Cupos</span><span style="display:flex;align-items:center;gap:8px"><button onClick="{{ ahMenos }}" style="width:32px;height:32px;border:0;border-radius:16px;background:var(--card);font-weight:900">−</button><b style="font-size:17px;width:14px;text-align:center">{{ ahCupos }}</b><button onClick="{{ ahMas }}" style="width:32px;height:32px;border:0;border-radius:16px;background:var(--card);font-weight:900">+</button></span></div></sc-if>
+                <label style="flex:1;display:flex;align-items:center;gap:6px;padding:0 14px;height:50px;border-radius:12px;background:var(--sub)"><span style="font-size:14px;font-weight:800;color:var(--tx2)">$</span><input value="{{ ahPrecio }}" onChange="{{ ahPrecioCambio }}" inputmode="numeric" aria-label="Precio" style="flex:1;min-width:0;border:0;background:none;color:var(--tx);font:inherit;font-size:17px;font-weight:800;outline:none"></label>
+              </div>
+            </div>
+            <button onClick="{{ publicarHorario }}" disabled="{{ ahSinFranja }}" style="height:54px;border:0;border-radius:12px;background:#3346a8;color:#fff;font-size:16.5px;font-weight:900;opacity:{{ ahOp }}">Abrir horario</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hResena }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">¿Cómo te fue en la clase?</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Con {{ pf.n }}</small></span>
+            <div style="display:flex;justify-content:center;gap:8px"><sc-for list="{{ estrellasUI }}" as="e" hint-placeholder-count="5"><button onClick="{{ e.elegir }}" style="width:52px;height:52px;border:0;border-radius:14px;background:var(--sub);font-size:30px;color:{{ e.c }}">★</button></sc-for></div>
+            <textarea value="{{ resenaTxt }}" onChange="{{ resenaCambio }}" rows="3" placeholder="Cuéntale a otros jugadores cómo son sus clases" style="border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:12px 14px;font:inherit;font-size:15.5px;outline:none;resize:none"></textarea>
+            <button onClick="{{ publicarResena }}" style="height:54px;border:0;border-radius:12px;background:#3346a8;color:#fff;font-size:16.5px;font-weight:900">Publicar reseña</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hEditarProfe }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:14px">
+            <span style="display:flex;flex-direction:column"><b style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1">Tu perfil de profe</b><small style="font-size:13.5px;color:var(--tx2);margin-top:4px">Lo ven los jugadores al elegir con quién tomar clase</small></span>
+            <label style="display:flex;flex-direction:column;gap:6px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Sobre ti</small><textarea value="{{ profeBio }}" onChange="{{ profeBioCambio }}" rows="3" style="border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:12px 14px;font:inherit;font-size:15px;outline:none;resize:none"></textarea></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;flex-direction:column;gap:6px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Individual</small><input value="{{ profePi }}" onChange="{{ profePiCambio }}" inputmode="numeric" style="height:48px;border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:0 14px;font:inherit;font-size:16px;font-weight:800;outline:none"></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><small style="font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--tx2);text-transform:uppercase">Grupal (c/u)</small><input value="{{ profePg }}" onChange="{{ profePgCambio }}" inputmode="numeric" style="height:48px;border:0;border-radius:12px;background:var(--sub);color:var(--tx);padding:0 14px;font:inherit;font-size:16px;font-weight:800;outline:none"></label>
+            </div>
+            <button onClick="{{ guardarProfe }}" style="height:54px;border:0;border-radius:12px;background:#3346a8;color:#fff;font-size:16.5px;font-weight:900">Guardar</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- ================= BARRA DE PESTAÑAS ================= -->
+    <nav style="position:absolute;left:0;right:0;bottom:0;z-index:40;height:92px;padding-bottom:34px;box-sizing:border-box;display:flex;background:var(--card);border-top:1px solid var(--line);opacity:{{ barraOp }};transform:{{ barraT }};transition:transform .25s,opacity .2s">
+      <sc-for list="{{ tabsIzq }}" as="t" hint-placeholder-count="2">
+        <button onClick="{{ t.ir }}" style="position:relative;flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ t.c }};font-family:'Barlow Condensed';font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em"><i style="position:absolute;top:-1px;left:50%;width:{{ t.w }};height:3px;border-radius:0 0 3px 3px;background:var(--acc);transform:translateX(-50%);transition:width .24s"></i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.d }}"></path></svg>{{ t.n }}</button>
+      </sc-for>
+      <div style="flex:1;display:flex;justify-content:center"><button onClick="{{ abrirTarjeta }}" aria-label="Tu tarjeta Quilombo" style="position:relative;top:-18px;width:62px;height:62px;border:0;border-radius:20px;background:#0e1b33;color:#fff;box-shadow:0 10px 24px rgba(14,27,51,.35),0 0 0 4px var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden"><span style="position:absolute;right:-16px;top:-16px;width:40px;height:40px;border-radius:50%;border:7px solid var(--accd)"></span><b style="position:relative;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:32px;line-height:1">Q</b></button></div>
+      <sc-for list="{{ tabsDer }}" as="t" hint-placeholder-count="2">
+        <button onClick="{{ t.ir }}" style="position:relative;flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ t.c }};font-family:'Barlow Condensed';font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em"><i style="position:absolute;top:-1px;left:50%;width:{{ t.w }};height:3px;border-radius:0 0 3px 3px;background:var(--acc);transform:translateX(-50%);transition:width .24s"></i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.d }}"></path></svg>{{ t.n }}<sc-if value="{{ t.globo }}" hint-placeholder-val="{{ false }}"><i style="position:absolute;top:8px;right:calc(50% - 22px);min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:8px;background:#e8475b;color:#fff;font-family:'Barlow';font-style:normal;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center">2</i></sc-if></button>
+      </sc-for>
+    </nav>
+
+    <!-- status bar + isla -->
+    <div style="position:absolute;left:0;right:0;top:0;z-index:60;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 44px;pointer-events:none;color:{{ statusC }}">
+      <b style="font-size:16.5px;font-weight:700">9:41</b>
+      <span style="display:flex;align-items:center;gap:6px"><span style="display:flex;align-items:flex-end;gap:2px;height:12px"><i style="width:3px;height:4px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:6px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:9px;border-radius:1px;background:currentColor"></i><i style="width:3px;height:12px;border-radius:1px;background:currentColor"></i></span><span style="width:24px;height:12px;border-radius:4px;border:1.5px solid currentColor;opacity:.9;padding:1.5px;box-sizing:border-box;display:flex"><i style="flex:1;border-radius:2px;background:currentColor"></i></span></span>
+    </div>
+    <div style="position:absolute;top:11px;left:50%;z-index:61;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000"></div>
+
+    <sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:56px;left:16px;right:16px;z-index:70;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#0e1b33;color:#fff;box-shadow:0 14px 34px rgba(14,27,51,.35);animation:qsube .3s both">
+        <span style="width:30px;height:30px;flex:none;border-radius:15px;background:var(--ok);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+        <span style="display:flex;flex-direction:column"><b style="font-size:15px">{{ toast.t }}</b><small style="font-size:13px;opacity:.8">{{ toast.s }}</small></span>
+      </div>
+    </sc-if>
+    <div style="position:absolute;bottom:8px;left:50%;z-index:62;width:136px;height:5px;margin-left:-68px;border-radius:3px;background:{{ homeC }};pointer-events:none"></div>
+  </div>
+  </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;acento&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;azul&quot;, &quot;verde&quot;, &quot;naranja&quot;, &quot;noche&quot;], &quot;default&quot;: &quot;azul&quot;, &quot;tsType&quot;: &quot;'azul'|'verde'|'naranja'|'noche'&quot;}}">
+const G = {
+  yo: { n: 'Demo Jugador', corto: 'Tú', i: 'DJ', c: '#3346a8' },
+  juan: { n: 'Juan Pérez', corto: 'Juan', i: 'JP', c: '#1e7fd0' },
+  caro: { n: 'Caro López', corto: 'Caro', i: 'CL', c: '#e8475b' },
+  andres: { n: 'Andrés Gómez', corto: 'Andrés', i: 'AG', c: '#c2410c' },
+  vale: { n: 'Vale Ríos', corto: 'Vale', i: 'VR', c: '#18895b' }
+};
+const $ = (n) => '$' + Math.round(n).toLocaleString('es-CO');
+const ACENTOS = { naranja: { c: '#ff5b1f', n: 'Naranja' }, azul: { c: '#1e7fd0', n: 'Azul cancha' }, verde: { c: '#18895b', n: 'Verde cancha' }, noche: { c: '#0e1b33', n: 'Azul noche' } };
+const DIAS = [['Lun', '12', 'Hoy'], ['Mar', '13', 'Mañana'], ['Mié', '14', 'Mié 14'], ['Jue', '15', 'Jue 15'], ['Vie', '16', 'Vie 16'], ['Sáb', '17', 'Sáb 17'], ['Dom', '18', 'Dom 18']];
+const HORAS = [['6:00', 'a. m.', '7:30 a. m.'], ['7:30', 'a. m.', '9:00 a. m.'], ['9:00', 'a. m.', '10:30 a. m.'], ['10:30', 'a. m.', '12:00 p. m.'], ['12:00', 'p. m.', '1:30 p. m.'], ['4:30', 'p. m.', '6:00 p. m.'], ['6:00', 'p. m.', '7:30 p. m.'], ['7:30', 'p. m.', '9:00 p. m.'], ['9:00', 'p. m.', '10:30 p. m.']];
+const CLUBES = {
+  'Medellín': [{ n: 'Pádel Club La 70', dir: 'Laureles · Cra. 70 #44-20' }, { n: 'Envigado Pádel', dir: 'Envigado' }],
+  'Bogotá': [{ n: 'Bogotá Pádel Usaquén', dir: 'Usaquén' }, { n: 'Cancha 93', dir: 'Chicó' }],
+  'Cali': [{ n: 'Cali Pádel Club', dir: 'Cali' }]
+};
+const CANCHAS = ['Cancha 1 · techada', 'Cancha 2 · panorámica', 'Cancha 3 · cristal', 'Cancha 4 · techada'];
+const CARTA = [{ id: 'cer', n: 'Cerveza', e: '🍺', p: 9000 }, { id: 'mic', n: 'Michelada', e: '🍹', p: 12000 }, { id: 'emp', n: 'Empanadas ×3', e: '🥟', p: 9000 }, { id: 'pic', n: 'Picada para 4', e: '🍢', p: 48000 }, { id: 'tub', n: 'Tubo de pelotas', e: '🎾', p: 32000 }];
+const TORNEOS = [
+  { id: 'am', n: 'Americano nocturno La 70', meta: '📍 Medellín · Vie 16 oct · 3ª, 4ª, 5ª', cupos: 6, p: 60000, bg: '#c2410c' },
+  { id: 'liga', n: 'Liga La 70 · 4ª', meta: '📍 Medellín · desde el 20 oct · 4ª', cupos: 10, p: 120000, bg: '#3346a8' },
+  { id: 'open', n: 'Open Medellín', meta: '📍 Medellín · 1 nov · 1ª a 6ª', cupos: 24, p: 180000, bg: '#18895b' }
+];
+const ICON = {
+  social: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c0-4 3-7 7-7s7 3 7 7M16 3.5a4 4 0 0 1 0 7.5M22 21c0-3-2-5.5-4.5-6.5',
+  jugar: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  perfil: 'M12 4a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM4 21a8 8 0 0 1 16 0'
+};
+
+const PROFES = [
+  { id: 'diego', n: 'Diego Salazar', i: 'DS', c: '#0e1b33', esp: 'Técnica y bandeja', niveles: [7, 6, 5, 4], pi: 120000, pg: 50000, clubes: ['Pádel Club La 70'], ciudad: 'Medellín', anos: 9, certs: ['Instructor FEP nivel 2'], idiomas: ['Español'], est: 4.9, res: 87, bio: 'Ex jugador de la selección Antioquia. Clases para que le pierdas el miedo a la pared y mejores la bandeja.' },
+  { id: 'monica', n: 'Mónica Arias', i: 'MA', c: '#e8475b', esp: 'Táctica y competencia', niveles: [4, 3, 2], pi: 160000, pg: 65000, clubes: ['Envigado Pádel', 'Pádel Club La 70'], ciudad: 'Medellín', anos: 12, certs: ['Entrenadora Nacional', 'PTR Padel'], idiomas: ['Español', 'Inglés'], est: 5.0, res: 54, bio: 'Campeona nacional 2024. Táctica de partido, posicionamiento y juego en red para 3ª y 4ª.' },
+  { id: 'carla', n: 'Carla Benítez', i: 'CB', c: '#18895b', esp: 'Clínicas y físico', niveles: [5, 4, 3], pi: 180000, pg: 70000, clubes: ['Pádel Club La 70'], ciudad: 'Medellín', anos: 15, certs: ['Entrenadora APA'], idiomas: ['Español', 'Portugués'], est: 4.8, res: 112, bio: 'Argentina, 6 años en el circuito profesional. Clínicas grupales intensas y preparación física en cancha.' },
+  { id: 'juanes', n: 'Juanes Ortiz', i: 'JO', c: '#b98500', esp: 'Iniciación', niveles: [7, 6], pi: 100000, pg: 40000, clubes: ['Cancha 93'], ciudad: 'Bogotá', anos: 5, certs: ['Instructor FEP nivel 1'], idiomas: ['Español'], est: 4.7, res: 39, bio: 'Clases para empezar desde cero: agarre, golpes básicos y reglas. Paciencia infinita.' }
+];
+const CLASES0 = [
+  { id: 'c1', profe: 'diego', dia: 1, hora: '7:30 a. m.', club: 'Pádel Club La 70', cancha: 'Cancha 3', tipo: 'individual', cupos: 1, precio: 120000, alumnos: [] },
+  { id: 'c2', profe: 'diego', dia: 1, hora: '4:30 p. m.', club: 'Pádel Club La 70', cancha: 'Cancha 1', tipo: 'grupal', cupos: 4, precio: 50000, alumnos: ['Sara U.', 'Tomás A.'] },
+  { id: 'c3', profe: 'diego', dia: 3, hora: '7:30 a. m.', club: 'Pádel Club La 70', cancha: 'Cancha 2', tipo: 'individual', cupos: 1, precio: 120000, alumnos: [] },
+  { id: 'c4', profe: 'monica', dia: 2, hora: '9:00 a. m.', club: 'Envigado Pádel', cancha: 'Cancha 1', tipo: 'individual', cupos: 1, precio: 160000, alumnos: [] },
+  { id: 'c5', profe: 'monica', dia: 2, hora: '7:30 p. m.', club: 'Pádel Club La 70', cancha: 'Cancha 4', tipo: 'grupal', cupos: 4, precio: 65000, alumnos: ['Caro L.'] },
+  { id: 'c6', profe: 'carla', dia: 1, hora: '10:30 a. m.', club: 'Pádel Club La 70', cancha: 'Cancha 2', tipo: 'grupal', cupos: 4, precio: 70000, alumnos: ['Mariana V.', 'Nico O.', 'Esteban C.'] },
+  { id: 'c7', profe: 'carla', dia: 4, hora: '6:00 a. m.', club: 'Pádel Club La 70', cancha: 'Cancha 1', tipo: 'individual', cupos: 1, precio: 180000, alumnos: [] },
+  { id: 'c8', profe: 'juanes', dia: 2, hora: '6:00 p. m.', club: 'Cancha 93', cancha: 'Cancha 2', tipo: 'grupal', cupos: 4, precio: 40000, alumnos: [] }
+];
+const RESENAS0 = [
+  { profe: 'diego', autor: 'Juan', i: 'JP', c: '#1e7fd0', est: 5, texto: 'Me arregló la bandeja en dos clases. Crack.', fecha: '9 oct' },
+  { profe: 'diego', autor: 'Sara', i: 'SU', c: '#b98500', est: 5, texto: 'Paciente y muy claro.', fecha: '5 oct' },
+  { profe: 'monica', autor: 'Vale', i: 'VR', c: '#18895b', est: 5, texto: 'Te cambia la forma de leer el partido.', fecha: '8 oct' },
+  { profe: 'carla', autor: 'Caro', i: 'CL', c: '#e8475b', est: 4, texto: 'Exigente, sales muerto pero vale la pena 💪', fecha: '6 oct' },
+  { profe: 'juanes', autor: 'Andrés', i: 'AG', c: '#c2410c', est: 5, texto: 'Ideal si estás empezando.', fecha: '3 oct' }
+];
+const TINFO = {
+  am: { club: 'Pádel Club La 70', fechas: 'Viernes 16 de octubre · 7:00 p. m.', dia: 16, cats: ['3ª', '4ª', '5ª'], formato: 'Americano · parejas rotativas · 3 horas', premios: 'Palas para la pareja ganadora · bono de bar de $200.000', desc: 'Noche de pádel con DJ, picada y cerveza. Juegas contra todos y suman los games.' },
+  liga: { club: 'Pádel Club La 70', fechas: 'Desde el martes 20 de octubre · 6 fechas', dia: 20, cats: ['4ª'], formato: 'Liga por grupos y playoffs', premios: 'Trofeo y 500 pts de ranking', desc: 'Un partido por semana en el horario que acuerden las parejas.' },
+  open: { club: 'Pádel Club La 70 y Envigado Pádel', fechas: '1 al 3 de noviembre', dia: 32, cats: ['2ª', '3ª', '4ª', '5ª'], formato: 'Cuadro eliminatorio por categoría', premios: '$6.000.000 en premios', desc: 'El torneo más grande de Antioquia. Cupos limitados por categoría.' }
+};
+const DIA_LARGO = ['Hoy · lunes 12 de octubre', 'Mañana · martes 13 de octubre', 'Miércoles 14 de octubre', 'Jueves 15 de octubre', 'Viernes 16 de octubre', 'Sábado 17 de octubre', 'Domingo 18 de octubre'];
+const nivelTxt = (n) => (n === 7 ? 'Iniciación' : n + 'ª');
+
+function inicial(props) {
+  return {
+    tab: 'social', ov: null, hoja: null, tema: 'tiza', acento: (props && props.acento) || 'azul',
+    saldo: 142000, seg: 87 * 60,
+    reservas: [
+      { id: 'r1', club: 'Pádel Club La 70', dir: 'Laureles · Cra. 70 #44-20', cancha: 'Cancha 2 · panorámica', dia: 'Hoy', hora: '7:30', ampm: 'p. m.', fin: '9:00 p. m.', precio: 160000, estado: 'apartada', codigo: 'ABA7CD', gente: ['yo', 'juan', 'caro', 'vale'], partes: null },
+      { id: 'r2', club: 'Envigado Pádel', dir: 'Envigado', cancha: 'Cancha 1 · techada', dia: 'Jue 15', hora: '6:00', ampm: 'p. m.', fin: '7:30 p. m.', precio: 160000, estado: 'pagada', codigo: 'KM42PZ', gente: ['yo', 'juan', 'andres', 'caro'], partes: null }
+    ],
+    activa: 'r1', ciudad: 'Medellín', dia: 0, sel: null, tipoCancha: 1, con: ['juan'],
+    pago: null, etapa: 'elegir', metodo: 'saldo',
+    avisoJuan: true, solicitud: true, resEstado: 'pendiente', juanConf: false,
+    inv: null, inscrito: {}, feed: 'fotos', likes: {}, fuegos: {}, vistas: {},
+    modoDiv: 'mitad', pedido: {}, tope: null,
+    consumos: [{ n: '2 × Cerveza', e: '🍺', total: 18000, estado: 'Entregado' }],
+    movs: [
+      { e: '🎾', t: 'Cancha · Envigado Pádel', s: 'Jue 15 · 6:00 p. m.', v: -160000 },
+      { e: '🍺', t: 'Bar · La 70', s: 'Hoy · 2 × Cerveza', v: -18000 },
+      { e: '＋', t: 'Recarga por Nequi', s: 'Ayer', v: 200000 },
+      { e: '↩︎', t: 'Reembolso · cancha cancelada', s: '8 oct', v: 60000 }
+    ],
+    recarga: 100000, rankFiltro: 'Todos',
+    chatCon: null, borrador: '',
+    msgs: {
+      juan: [{ y: false, t: 'Parce, ¿hoy a las 7:30 en La 70?' }, { y: true, t: '¡Hágale! Ya aparté la 2' }, { y: false, t: 'Una chimba. Te pasé el cobro de la del jueves 🙏' }],
+      grupo: [{ y: false, t: 'Caro: ¿quién lleva pelotas?' }, { y: false, t: 'Vale: yo llevo un tubo nuevo 🎾' }],
+      andres: [{ y: false, t: 'Ya subí el resultado, confírmalo 😬' }],
+      caro: [{ y: false, t: 'Jajaja ese globo del tercer set 😂' }],
+      vale: [{ y: false, t: 'Te agregué como pareja, ¿Americano el viernes?' }]
+    },
+    toast: null,
+    atras: null, comoProfe: false, profeId: 'monica', claseId: null, clases: CLASES0, resenas: RESENAS0,
+    fCiudad: 'Medellín', fNivel: null, fTipo: 'todas', calDia: 12, torneoId: 'am', insc: {},
+    inCat: '4ª', inPareja: 'juan', inMetodo: 'tarjeta', adjunto: false,
+    ah: { club: 'Pádel Club La 70', dia: 2, franja: null, tipo: 'grupal', cupos: 4, precio: 50000 },
+    estrellas: 5, resenaTxt: '', profeBio: PROFES[0].bio, profePi: 120000, profePg: 50000
+  };
+}
+
+class Component extends DCLogic {
+  state = inicial(this.props);
+  scrollRef = React.createRef();
+  canchasRef = React.createRef();
+  chatRef = React.createRef();
+
+  componentDidMount() {
+    this.tick = setInterval(() => this.setState((s) => ({ seg: Math.max(0, s.seg - 1) })), 1000);
+    const tryQR = () => {
+      if (window.qrcode) { const q = window.qrcode(0, 'M'); q.addData('QUILOMBO:Q7K2MX'); q.make(); this.setState({ qr: q.createDataURL(6, 0) }); }
+      else this.qrT = setTimeout(tryQR, 300);
+    };
+    tryQR();
+  }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.qrT); clearTimeout(this.toastT); }
+  componentDidUpdate(pp, ps) {
+    if (ps.tab !== this.state.tab && this.scrollRef.current) this.scrollRef.current.scrollTop = 0;
+    if (this.chatRef.current && (ps.msgs !== this.state.msgs || ps.ov !== this.state.ov)) this.chatRef.current.scrollTop = 99999;
+    if (pp.acento !== this.props.acento && this.props.acento) this.setState({ acento: this.props.acento });
+  }
+  avisar(t, s) { clearTimeout(this.toastT); this.setState({ toast: { t, s: s || '' } }); this.toastT = setTimeout(() => this.setState({ toast: null }), 2800); }
+  reserva(id) { return this.state.reservas.find((r) => r.id === (id || this.state.activa)); }
+  upd(id, f) { this.setState((s) => ({ reservas: s.reservas.map((r) => (r.id === id ? { ...r, ...f(r) } : r)) })); }
+  abrirPago(monto, concepto, tipo, ref) { this.setState({ hoja: 'pagar', etapa: 'elegir', pago: { monto, concepto, tipo, ref }, metodo: tipo === 'recarga' ? 'nequi' : 'saldo' }); }
+
+  confirmarPago = () => {
+    const { pago, metodo } = this.state;
+    this.setState({ etapa: 'procesando' });
+    setTimeout(() => {
+      const conSaldo = metodo === 'saldo';
+      const ref = 'QB-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      this.setState((s) => {
+        const n = { etapa: 'ok', pago: { ...s.pago, refPago: ref } };
+        let mov = null;
+        if (pago.tipo === 'recarga') { n.saldo = s.saldo + pago.monto; mov = { e: '＋', t: 'Recarga por ' + this.metodoNombre(metodo), s: 'Hoy', v: pago.monto }; }
+        else if (conSaldo) { n.saldo = s.saldo - pago.monto; }
+        if (pago.tipo !== 'recarga' && conSaldo) mov = { e: pago.tipo === 'pedido' ? '🍹' : pago.tipo === 'torneo' ? '🏆' : '🎾', t: pago.concepto, s: 'Hoy', v: -pago.monto };
+        if (mov) n.movs = [mov, ...s.movs];
+        if (pago.tipo === 'reserva') n.reservas = s.reservas.map((r) => (r.id === pago.ref ? { ...r, estado: 'pagada' } : r));
+        if (pago.tipo === 'nueva') n.reservas = [pago.ref, ...s.reservas.map((r) => r)].map((r) => (r === pago.ref ? { ...r, estado: 'pagada' } : r));
+        if (pago.tipo === 'parte') n.avisoJuan = false;
+        if (pago.tipo === 'torneo') n.inscrito = { ...s.inscrito, [pago.ref]: true };
+        if (pago.tipo === 'pedido') { n.consumos = [...pago.ref, ...s.consumos]; n.pedido = {}; }
+        if (pago.tipo === 'clase') n.clases = s.clases.map((c) => (c.id === pago.ref ? { ...c, alumnos: [...c.alumnos, 'Tú'] } : c));
+        if (pago.tipo === 'torneo') n.insc = { ...s.insc, [pago.ref]: 'inscrito' };
+        return n;
+      });
+      if (pago.tipo === 'nueva') this.setState({ activa: pago.ref.id });
+    }, 1300);
+  };
+  metodoNombre(m) { return { saldo: 'Saldo Quilombo', nequi: 'Nequi', pse: 'PSE', tarjeta: 'Tarjeta •••• 4242' }[m]; }
+
+  confirmarDividir = () => {
+    const r = this.reserva();
+    const partes = this.partesDe(r, this.state.modoDiv).map((p) => ({ ...p, estado: p.k === 'yo' ? 'pagada' : 'pendiente' }));
+    const mia = partes.find((p) => p.k === 'yo').monto;
+    this.upd(r.id, () => ({ partes }));
+    this.setState((s) => ({ hoja: null, saldo: s.saldo - mia, movs: [{ e: '🎾', t: 'Tu parte · ' + r.club, s: 'Hoy', v: -mia }, ...s.movs] }));
+    this.avisar('Pagaste tu parte · ' + $(mia), 'A los demás les llegó la suya');
+    setTimeout(() => {
+      this.upd(r.id, (x) => {
+        const ps = x.partes.map((p) => (p.k === 'juan' ? { ...p, estado: 'pagada' } : p));
+        return { partes: ps, estado: ps.every((p) => p.estado === 'pagada') ? 'pagada' : x.estado };
+      });
+      this.avisar('Juan pagó su parte ✓', 'Con su saldo Quilombo');
+    }, 3200);
+  };
+  partesDe(r, modo) {
+    const P = r.precio;
+    if (modo === 'mitad') return [{ k: 'yo', monto: P / 2 }, { k: 'juan', monto: P / 2 }];
+    if (modo === 'todos') return r.gente.map((k) => ({ k, monto: P / r.gente.length }));
+    return [{ k: 'yo', monto: 60000 }, { k: 'juan', monto: 60000 }, { k: 'vale', monto: P - 120000 }];
+  }
+  cubrir(k) {
+    const r = this.reserva(); const p = r.partes.find((x) => x.k === k);
+    this.upd(r.id, (x) => { const ps = x.partes.map((y) => (y.k === k ? { ...y, estado: 'pagada', cubierta: true } : y)); return { partes: ps, estado: ps.every((y) => y.estado === 'pagada') ? 'pagada' : x.estado }; });
+    this.setState((s) => ({ saldo: s.saldo - p.monto }));
+    this.avisar('Cubriste la parte de ' + G[k].corto, $(p.monto) + ' con tu saldo');
+  }
+
+  confirmarRes = () => {
+    this.setState({ resEstado: 'confirmado' });
+    this.avisar('Confirmado ✓', 'Falta que Juan confirme');
+    setTimeout(() => { this.setState({ juanConf: true, resEstado: 'valido' }); this.avisar('¡Ya vale para el ranking!', '+19 pts · subiste 2 puestos'); }, 2200);
+  };
+
+  ranking() {
+    const valido = this.state.resEstado === 'valido';
+    const base = [
+      { k: 'caro', cat: '4ª', ciu: 'Medellín', pts: 1262 + (valido ? -12 : 0), v: 24, d: 16, dl: valido ? -12 : 0 },
+      { k: 'andres', cat: '4ª', ciu: 'Medellín', pts: 1258 + (valido ? -12 : 0), v: 26, d: 18, dl: valido ? -12 : 0 },
+      { k: 'yo', cat: '4ª', ciu: 'Medellín', pts: 1250 + (valido ? 19 : 0), v: 23 + (valido ? 1 : 0), d: 14, dl: valido ? 19 : 0 },
+      { k: 'juan', cat: '4ª', ciu: 'Medellín', pts: 1241 + (valido ? 19 : 0), v: 21 + (valido ? 1 : 0), d: 15, dl: valido ? 19 : 0 },
+      { k: 'vale', cat: '3ª', ciu: 'Medellín', pts: 1230, v: 19, d: 12, dl: 0 },
+      { n: 'Pipe Cardona', i: 'PC', c: '#b98500', cat: '4ª', ciu: 'Bogotá', pts: 1266, v: 27, d: 20, dl: 0 },
+      { n: 'Lina Mejía', i: 'LM', c: '#1e7fd0', cat: '5ª', ciu: 'Cali', pts: 1222, v: 18, d: 11, dl: 0 }
+    ].map((x) => (x.k ? { ...x, ...G[x.k] } : x)).sort((a, b) => b.pts - a.pts);
+    return base.map((x, i) => ({ ...x, pos: 145 + i }));
+  }
+
+  renderVals() { const b = this.renderBase(); return { ...b, ...this.renderExtra(b) }; }
+
+  renderExtra(b) {
+    const s = this.state;
+    const sep = (i) => (i ? '1px solid var(--line)' : '0');
+    const go = (k, extra) => () => this.setState((x) => ({ ov: k, atras: x.ov && x.ov !== k ? x.ov : null, hoja: null, ...(extra || {}) }));
+    const on = (v) => ({ bg: v ? 'var(--accs)' : 'transparent', borde: v ? 'var(--acc)' : 'var(--line)' });
+    const chipF = (v) => ({ bg: v ? '#0e1b33' : 'var(--sub)', tx: v ? '#fff' : 'var(--tx)' });
+    const seg = (v) => ({ bg: v ? 'var(--card)' : 'transparent', sombra: v ? '0 2px 8px rgba(14,27,51,.12)' : 'none' });
+    const vivas = s.clases.filter((c) => c.estado !== 'cancelada');
+    const clasesDe = (id) => vivas.filter((c) => c.profe === id).sort((a, b2) => a.dia - b2.dia);
+    const quedan = (c) => c.cupos - c.alumnos.length;
+    const partirHora = (h) => { const [hc, ...r] = h.split(' '); return { hc, ampm: r.join(' ') }; };
+    const porDia = (cs, f) => { const m = new Map(); cs.forEach((c) => m.set(c.dia, [...(m.get(c.dia) || []), c])); return [...m].map(([d, l]) => ({ dia: DIA_LARGO[d], clases: l.map(f) })); };
+    const pdat = (id) => { const p = PROFES.find((x) => x.id === id); return id === 'diego' ? { ...p, bio: s.profeBio, pi: s.profePi, pg: s.profePg } : p; };
+
+    const lista = PROFES.filter((p) => !(s.comoProfe && p.id === 'diego'))
+      .filter((p) => s.fCiudad === 'Todas' || p.ciudad === s.fCiudad)
+      .filter((p) => !s.fNivel || p.niveles.includes(s.fNivel))
+      .filter((p) => s.fTipo === 'todas' || clasesDe(p.id).some((c) => c.tipo === s.fTipo))
+      .sort((a, c) => c.est - a.est || c.res - a.res);
+    const mias = vivas.filter((c) => c.alumnos.includes('Tú'));
+
+    const pp = pdat(s.profeId);
+    const rese = s.resenas.filter((r) => r.profe === pp.id);
+    const cl = vivas.find((c) => c.id === s.claseId) || s.clases[0];
+
+    const t = TORNEOS.find((x) => x.id === s.torneoId);
+    const ti = TINFO[t.id];
+    const est = s.insc[t.id] || (s.inscrito[t.id] ? 'inscrito' : null);
+    const EST = { revision: ['⏳', 'Comprobante en revisión', ti.club + ' lo revisa y te confirma aquí', '#a86b00'], inscrito: ['✓', 'Inscrito', 'Categoría ' + s.inCat + ' · con ' + (s.inPareja === 'busco' ? 'pareja por asignar' : G[s.inPareja].corto), '#18895b'], rechazado: ['✕', 'Rechazado', 'El monto del comprobante no coincide', '#e8475b'] }[est] || [];
+
+    const diaNum = (label) => 12 + DIAS.findIndex((d) => d[2] === label);
+    const eventos = [];
+    s.reservas.forEach((r) => eventos.push({ d: diaNum(r.dia), c: 'var(--acc)', e: '🎾', t: 'Partido · ' + r.club, s: r.hora + ' ' + r.ampm + ' · ' + r.cancha + (r.estado === 'pagada' ? ' · ✓ pagada' : ' · ⏳ apartada'), abrir: () => this.setState((x) => ({ ov: 'partido', activa: r.id, atras: 'calendario' })) }));
+    mias.forEach((c) => eventos.push({ d: 12 + c.dia, c: '#3346a8', e: '🎓', t: 'Clase con ' + pdat(c.profe).n.split(' ')[0], s: c.hora + ' · ' + c.club + ' · ' + c.cancha, abrir: go('profesor', { profeId: c.profe }) }));
+    if (s.inv === 'voy') eventos.push({ d: 17, c: 'var(--acc)', e: '🎾', t: 'Partido de Juan', s: '9:00 a. m. · Envigado Pádel', abrir: () => {} });
+    TORNEOS.forEach((x) => { const e2 = s.insc[x.id] || (s.inscrito[x.id] ? 'inscrito' : null); if (e2) eventos.push({ d: TINFO[x.id].dia, c: '#b98500', e: '🏆', t: x.n, s: e2 === 'inscrito' ? '✓ Inscrito' : '⏳ Comprobante en revisión', abrir: go('torneo', { torneoId: x.id }) }); });
+    const celdas = [...Array(3).fill(null), ...Array.from({ length: 31 }, (_, i) => i + 1)];
+    while (celdas.length % 7) celdas.push(null);
+    const sirven = TORNEOS.filter((x) => !s.insc[x.id] && !s.inscrito[x.id] && TINFO[x.id].cats.includes('4ª')).map((x) => TINFO[x.id].dia);
+
+    const profeMias = clasesDe('diego');
+    const ahLibres = HORAS.map((h, hi) => ({ h, hi })).filter(({ hi }) => (hi * 5 + s.ah.dia * 3) % 3 !== 0).slice(0, 6).map(({ h, hi }) => ({ id: s.ah.dia + '-' + hi, hora: h[0] + ' ' + h[1], cancha: ['Cancha 1', 'Cancha 2', 'Cancha 3', 'Cancha 4'][(hi + s.ah.dia) % 4] }));
+    const ahSet = (f) => this.setState((x) => ({ ah: { ...x.ah, ...f } }));
+
+    return {
+      cerrarOv: () => this.setState((x) => ({ ov: x.atras || null, atras: null, hoja: null })),
+      comoUI: [[false, 'Tú · jugador'], [true, 'Profe Diego']].map(([v, tx]) => ({ t: tx, bg: s.comoProfe === v ? '#0e1b33' : 'transparent', tx: s.comoProfe === v ? '#fff' : '#0e1b33', elegir: () => { this.setState({ comoProfe: v, tab: 'perfil', ov: null, hoja: null }); this.avisar(v ? 'Modo profesor 🎓' : 'Modo jugador', v ? 'Usando la app como Diego Salazar' : 'Usando la app como Demo Jugador'); } })),
+      flujos: [...b.flujos.slice(0, 3),
+        { n: 4, t: 'Torneo · Yo voy', s: 'Calendario → Americano nocturno', ir: () => this.setState({ tab: 'jugar', ov: 'calendario', atras: null, hoja: null, calDia: 16 }) },
+        b.flujos[4],
+        { n: 6, t: 'Clase con profe', s: 'Mónica Arias · pagar con saldo', ir: () => this.setState({ comoProfe: false, ov: 'profesor', atras: 'clases', profeId: 'monica', hoja: null }) },
+        { n: 7, t: 'Modo profesor', s: 'Diego abre un horario', ir: () => this.setState({ comoProfe: true, tab: 'perfil', ov: null, hoja: 'horario' }) }],
+      perfilJugador: !s.comoProfe, perfilProfe: s.comoProfe, nMisClases: mias.length ? mias.length + ' reservada' + (mias.length > 1 ? 's' : '') : 'ver profes',
+      abrirClases: go('clases'), abrirCalendario: go('calendario'),
+      ovClases: s.ov === 'clases', ovProfesor: s.ov === 'profesor', ovCalendario: s.ov === 'calendario', ovTorneo: s.ov === 'torneo',
+
+      hayMisClases: mias.length > 0,
+      misClasesUI: mias.map((c) => { const p = pdat(c.profe); return { ...c, i: p.i, c: p.c, corto: p.n.split(' ')[0], diaTxt: DIAS[c.dia][2], cancelar: () => { this.setState((x) => ({ clases: x.clases.map((y) => (y.id === c.id ? { ...y, alumnos: y.alumnos.filter((a) => a !== 'Tú') } : y)), saldo: x.saldo + c.precio, movs: [{ e: '↩︎', t: 'Reembolso · clase con ' + p.n.split(' ')[0], s: 'Hoy', v: c.precio }, ...x.movs] })); this.avisar('Clase cancelada', 'Te devolvimos ' + $(c.precio) + ' a tu saldo'); } }; }),
+      fCiudadUI: ['Todas', 'Medellín', 'Bogotá'].map((c) => ({ t: c === 'Todas' ? '🇨🇴 Todas' : '📍 ' + c, ...chipF(s.fCiudad === c), elegir: () => this.setState({ fCiudad: c }) })),
+      fNivelUI: [null, 7, 6, 5, 4, 3, 2].map((n) => ({ t: n === null ? 'Todo nivel' : nivelTxt(n) + (n === 4 ? ' · tú' : ''), ...chipF(s.fNivel === n), elegir: () => this.setState({ fNivel: n }) })),
+      fTipoUI: [['todas', 'Individual y grupal'], ['individual', '👤 Individual'], ['grupal', '👥 Grupal']].map(([k, tx]) => ({ t: tx, ...chipF(s.fTipo === k), elegir: () => this.setState({ fTipo: k }) })),
+      nProfesTxt: lista.length + ' profe' + (lista.length === 1 ? '' : 's') + (s.fCiudad !== 'Todas' ? ' en ' + s.fCiudad : ''),
+      profesUI: lista.map((p0) => { const p = pdat(p0.id); const prox = clasesDe(p.id).find((c) => quedan(c) > 0); return { ...p, estTxt: p.est.toFixed(1).replace('.', ','), nivelesTxt: [...p.niveles].sort((a, c) => c - a).map(nivelTxt).join(' · '), clubesTxt: p.clubes.join(' · '), desdeTxt: $(Math.min(p.pi, p.pg)), proxTxt: prox ? 'Próxima: ' + DIAS[prox.dia][2] + ' ' + prox.hora : 'Sin horarios esta semana', proxC: prox ? 'var(--acct)' : 'var(--tx3)', abrir: go('profesor', { profeId: p.id }) }; }),
+
+      pf: {
+        ...pp, corto: pp.n.split(' ')[0], estTxt: pp.est.toFixed(1).replace('.', ','), piTxt: $(pp.pi), pgTxt: $(pp.pg),
+        chips: [[...pp.niveles].sort((a, c) => c - a).map(nivelTxt).join(' · '), ...pp.clubes.map((c) => '📍 ' + c), ...pp.certs.map((c) => '🏅 ' + c), '🗣️ ' + pp.idiomas.join(', ')],
+        porDia: porDia(clasesDe(pp.id), (c) => { const mia = c.alumnos.includes('Tú'); const llena = quedan(c) <= 0; const esYo = s.comoProfe && pp.id === 'diego'; return { ...partirHora(c.hora), club: c.club + ' · ' + c.cancha, tipoTxt: c.tipo === 'individual' ? '👤 Individual' : '👥 Grupal · quedan ' + quedan(c) + ' de ' + c.cupos, precioTxt: $(c.precio), borde: mia ? 'var(--ok)' : 'var(--line)', op: llena && !mia ? 0.55 : 1, chip: mia ? '✓ Reservada' : llena ? 'Llena' : esYo ? 'Tu clase' : 'Reservar', chipBg: mia ? 'var(--ok)' : llena || esYo ? 'var(--sub)' : '#3346a8', chipTx: mia || !(llena || esYo) ? '#fff' : 'var(--tx2)', reservar: () => { if (mia || llena || esYo) return; this.setState({ hoja: 'clase', claseId: c.id }); } }; }),
+        sinHorarios: clasesDe(pp.id).length === 0,
+        puedeResenar: mias.some((c) => c.profe === pp.id) && !rese.some((r) => r.autor === 'Tú'),
+        resenas: rese.map((r) => ({ ...r, estrellas: '★'.repeat(r.est) }))
+      },
+      abrirResena: () => this.setState({ hoja: 'resena', estrellas: 5, resenaTxt: '' }),
+
+      hClase: s.hoja === 'clase',
+      cl: { ...cl, profeN: pdat(cl.profe).n, diaTxt: DIA_LARGO[cl.dia].toUpperCase(), precioTxt: $(cl.precio), tipoTxt: cl.tipo === 'individual' ? '👤 Individual' : '👥 Grupal · quedan ' + quedan(cl) + ' de ' + cl.cupos },
+      pagarClase: () => this.abrirPago(cl.precio, 'Clase con ' + pdat(cl.profe).n, 'clase', cl.id),
+
+      hResena: s.hoja === 'resena', resenaTxt: s.resenaTxt, resenaCambio: (e) => this.setState({ resenaTxt: e.target.value }),
+      estrellasUI: [1, 2, 3, 4, 5].map((n) => ({ c: n <= s.estrellas ? '#f5b301' : 'var(--tx3)', elegir: () => this.setState({ estrellas: n }) })),
+      publicarResena: () => { this.setState((x) => ({ hoja: null, resenas: [{ profe: pp.id, autor: 'Tú', i: 'DJ', c: '#3346a8', est: x.estrellas, texto: x.resenaTxt.trim() || 'Muy buena clase 🙌', fecha: 'hoy' }, ...x.resenas] })); this.avisar('¡Gracias por tu reseña!', 'Le ayuda a otros jugadores a elegir profe'); },
+
+      nEventosMes: eventos.length,
+      celdas: celdas.map((d) => { const ev = d ? eventos.filter((e) => e.d === d) : []; const sel = d === s.calDia; const hoy = d === 12; return { n: d || '', vis: d ? 'visible' : 'hidden', bg: sel ? '#0e1b33' : 'transparent', tx: sel ? '#fff' : 'var(--tx)', peso: hoy || sel ? 900 : 600, borde: sirven.includes(d) && !sel ? '1.5px solid #1e7fd0' : hoy && !sel ? '1.5px solid var(--tx)' : '1.5px solid transparent', puntos: [...new Set(ev.map((e) => e.c))].slice(0, 3), elegir: () => d && this.setState({ calDia: d }) }; }),
+      calTitulo: s.calDia === 12 ? 'Hoy' : s.calDia === 13 ? 'Mañana' : ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][(s.calDia + 3) % 7] + ' ' + s.calDia,
+      agendaDia: [...eventos.filter((e) => e.d === s.calDia), ...TORNEOS.filter((x) => TINFO[x.id].dia === s.calDia && sirven.includes(s.calDia)).map((x) => ({ c: '#1e7fd0', e: '🏆', t: x.n + ' · te sirve', s: TINFO[x.id].fechas + ' · ' + $(x.p), abrir: go('torneo', { torneoId: x.id }) }))],
+      diaLibre: !eventos.some((e) => e.d === s.calDia) && !sirven.includes(s.calDia),
+      torneosParaTi: TORNEOS.filter((x) => TINFO[x.id].cats.includes('4ª')).map((x) => { const e2 = s.insc[x.id] || (s.inscrito[x.id] ? 'inscrito' : null); const dd = TINFO[x.id].dia; return { ...x, mes: dd > 31 ? 'NOV' : 'OCT', diaN: dd > 31 ? dd - 31 : dd, precioTxt: $(x.p) + ' por pareja', btn: e2 === 'inscrito' ? '✓ Inscrito' : e2 === 'revision' ? '⏳ En revisión' : 'Yo voy', btnBg: e2 === 'inscrito' ? '#18895b' : e2 ? '#a86b00' : 'var(--acc)', yoVoy: go('torneo', { torneoId: x.id }) }; }),
+
+      torneosUI: b.torneosUI.map((x, i) => { const e2 = s.insc[TORNEOS[i].id] || (s.inscrito[TORNEOS[i].id] ? 'inscrito' : null); return { ...x, btn: e2 === 'inscrito' ? '✓ Inscrito' : e2 === 'revision' ? '⏳ Revisión' : 'Yo voy', abrir: go('torneo', { torneoId: TORNEOS[i].id }), yoVoy: (ev) => { ev.stopPropagation(); if (!e2) this.setState({ ov: 'torneo', atras: null, torneoId: TORNEOS[i].id, hoja: 'inscripcion', adjunto: false }); } }; }),
+      tv: {
+        ...t, ...ti, precioTxt: $(t.p), hayEstado: !!est, estadoIco: EST[0], estadoT: EST[1], estadoS: EST[2], estadoBg: EST[3], rechazado: est === 'rechazado', puedeInscribir: !est,
+        cifras: [{ l: 'Cupos', v: String(t.cupos - (est === 'inscrito' ? 1 : 0)) }, { l: 'Precio', v: $(t.p) }, { l: 'Categorías', v: ti.cats.join(' ') }],
+        filas: [{ e: '🏟️', l: 'Organiza', v: ti.club }, { e: '🎯', l: 'Formato', v: ti.formato }, { e: '🏆', l: 'Premios', v: ti.premios }].map((f, i) => ({ ...f, sep: sep(i) }))
+      },
+      abrirInscripcion: () => this.setState({ hoja: 'inscripcion', adjunto: false, inCat: ti.cats.includes('4ª') ? '4ª' : ti.cats[0] }),
+      hInscripcion: s.hoja === 'inscripcion',
+      inCats: ti.cats.map((c) => ({ t: c, ...on(s.inCat === c), elegir: () => this.setState({ inCat: c }) })),
+      inParejas: [['juan', 'Juan'], ['vale', 'Vale'], ['caro', 'Caro'], ['busco', '🔎 Busco pareja']].map(([k, tx]) => ({ t: tx, ...on(s.inPareja === k), elegir: () => this.setState({ inPareja: k }) })),
+      inMetodos: [['tarjeta', '💳 Tarjeta'], ['comprobante', '📎 Comprobante']].map(([k, tx]) => ({ t: tx, ...seg(s.inMetodo === k), elegir: () => this.setState({ inMetodo: k }) })),
+      inComprobante: s.inMetodo === 'comprobante', sinAdjunto: !s.adjunto, conAdjunto: s.adjunto,
+      adjuntar: () => this.setState({ adjunto: true }), quitarAdjunto: () => this.setState({ adjunto: false }),
+      inDeshabilitado: s.inMetodo === 'comprobante' && !s.adjunto, inOp: s.inMetodo === 'comprobante' && !s.adjunto ? 0.4 : 1,
+      inBoton: s.inMetodo === 'tarjeta' ? 'Pagar ' + $(t.p) : 'Enviar comprobante',
+      enviarInscripcion: () => {
+        if (s.inMetodo === 'tarjeta') { this.abrirPago(t.p, 'Inscripción · ' + t.n, 'torneo', t.id); this.setState({ metodo: 'tarjeta' }); return; }
+        const id = t.id;
+        this.setState((x) => ({ hoja: null, insc: { ...x.insc, [id]: 'revision' } }));
+        this.avisar('Comprobante enviado 📎', ti.club + ' lo revisa y te confirma aquí');
+        setTimeout(() => { this.setState((x) => ({ insc: { ...x.insc, [id]: 'inscrito' } })); this.avisar('¡Quedaste inscrito! 🏆', t.n + ' · ' + this.state.inCat); }, 4500);
+      },
+
+      profeCifras: [{ l: 'Esta semana', v: $(profeMias.reduce((a, c) => a + c.precio * c.alumnos.length, 0)) }, { l: 'Alumnos', v: String(profeMias.reduce((a, c) => a + c.alumnos.length, 0)) }, { l: 'Horarios', v: String(profeMias.length) }],
+      profeAgenda: porDia(profeMias, (c) => ({ ...partirHora(c.hora), club: c.club, cancha: c.cancha, borde: quedan(c) <= 0 ? 'var(--ok)' : '#3346a8', resumen: (c.tipo === 'individual' ? 'Individual' : 'Grupal · ' + c.alumnos.length + '/' + c.cupos) + ' · ' + $(c.precio) + (c.alumnos.length ? ' · ' + $(c.precio * c.alumnos.length) : ''), alumnosUI: c.alumnos.length ? c.alumnos.map((a) => ({ t: a, bg: 'rgba(51,70,168,.12)', tx: 'var(--tx)' })) : [{ t: 'Sin alumnos aún · ' + quedan(c) + ' cupo' + (quedan(c) === 1 ? '' : 's'), bg: 'transparent', tx: 'var(--tx3)' }], cancelar: () => { const n = c.alumnos.length; this.setState((x) => ({ clases: x.clases.map((y) => (y.id === c.id ? { ...y, estado: 'cancelada' } : y)) })); this.avisar('Horario cancelado', n ? 'Se devolvió el saldo a ' + n + ' alumno' + (n > 1 ? 's' : '') : 'La cancha quedó libre para el club'); } })),
+      abrirHorario: () => this.setState({ hoja: 'horario', ah: { ...s.ah, franja: null } }), editarProfe: () => this.setState({ hoja: 'editarProfe' }),
+      verComoAlumno: go('profesor', { profeId: 'diego' }),
+      hHorario: s.hoja === 'horario',
+      ahClubes: ['Pádel Club La 70', 'Envigado Pádel'].map((c) => ({ t: c, ...on(s.ah.club === c), elegir: () => ahSet({ club: c, franja: null }) })),
+      ahDias: DIAS.map((d, i) => ({ arriba: i === 0 ? 'Hoy' : i === 1 ? 'Mañ' : d[0], abajo: d[1], ...on(s.ah.dia === i), elegir: () => ahSet({ dia: i, franja: null }) })),
+      ahLibres: ahLibres.map((f) => ({ ...f, ...on(s.ah.franja && s.ah.franja.id === f.id), elegir: () => ahSet({ franja: f }) })),
+      ahTipos: [['individual', '👤 Individual'], ['grupal', '👥 Grupal']].map(([k, tx]) => ({ t: tx, ...seg(s.ah.tipo === k), elegir: () => ahSet({ tipo: k, precio: k === 'individual' ? s.profePi : s.profePg }) })),
+      ahGrupal: s.ah.tipo === 'grupal', ahCupos: s.ah.cupos,
+      ahMenos: () => ahSet({ cupos: Math.max(2, s.ah.cupos - 1) }), ahMas: () => ahSet({ cupos: Math.min(6, s.ah.cupos + 1) }),
+      ahPrecio: Number(s.ah.precio).toLocaleString('es-CO'), ahPrecioCambio: (e) => ahSet({ precio: Number(String(e.target.value).replace(/\D/g, '')) || 0 }),
+      ahSinFranja: !s.ah.franja, ahOp: s.ah.franja ? 1 : 0.4,
+      publicarHorario: () => { const a = s.ah; if (!a.franja) return; this.setState((x) => ({ hoja: null, clases: [...x.clases, { id: 'c' + Date.now(), profe: 'diego', dia: a.dia, hora: a.franja.hora, club: a.club, cancha: a.franja.cancha, tipo: a.tipo, cupos: a.tipo === 'individual' ? 1 : a.cupos, precio: a.precio, alumnos: [] }] })); this.avisar('¡Horario abierto! 🎓', 'La cancha quedó apartada para la clase'); },
+      hEditarProfe: s.hoja === 'editarProfe', profeBio: s.profeBio, profePi: String(s.profePi), profePg: String(s.profePg),
+      profeBioCambio: (e) => this.setState({ profeBio: e.target.value }), profePiCambio: (e) => this.setState({ profePi: Number(e.target.value.replace(/\D/g, '')) || 0 }), profePgCambio: (e) => this.setState({ profePg: Number(e.target.value.replace(/\D/g, '')) || 0 }),
+      guardarProfe: () => { this.setState({ hoja: null }); this.avisar('Perfil de profe guardado', 'Así te ven los jugadores'); }
+    };
+  }
+
+  renderBase() {
+    const s = this.state;
+    const r = this.reserva() || s.reservas[0];
+    const valido = s.resEstado === 'valido';
+    const rank = this.ranking();
+    const yo = rank.find((x) => x.k === 'yo');
+    const pct = Math.round((yo.v / (yo.v + yo.d)) * 100) + '%';
+    const mm = String(Math.floor(s.seg / 60)).padStart(2, '0') + ':' + String(s.seg % 60).padStart(2, '0');
+    const ov = (k) => () => this.setState({ ov: k, hoja: null });
+    const tab = (k) => () => this.setState({ tab: k, ov: null, hoja: null });
+    const sep = (i) => (i ? '1px solid var(--line)' : '0');
+    const chip = (x) => (x.estado === 'pagada' ? { t: '✓ PAGADA', bg: '#18895b' } : { t: '⏳ APARTADA', bg: 'var(--acc)' });
+    const darkStatus = s.ov === 'tarjeta' || s.tema === 'noche';
+
+    const libres = [];
+    (CLUBES[s.ciudad] || []).forEach((club, ci) => HORAS.forEach((h, hi) => {
+      if ((hi * 7 + s.dia * 3 + ci * 5) % 3 === 0) return;
+      if (s.dia === 0 && hi < 5) return;
+      libres.push({ id: ci + '-' + hi, club: club.n, dir: club.dir, hc: h[0], ampm: h[1], fin: h[2], cancha: CANCHAS[(hi + ci + s.dia) % 4], precio: hi >= 5 ? 160000 : 120000 });
+    }));
+
+    const postsAll = {
+      fotos: [
+        { id: 'p1', g: 'caro', meta: 'Pádel Club La 70 · hace 2 h', img: 'img/cancha.svg', texto: 'Martes de pádel con la gente 🎾', likes: 12, fuegos: 4, com: 3, esFoto: true },
+        { id: 'p2', g: 'vale', meta: 'Envigado Pádel · hace 5 h', img: 'img/podio.svg', texto: 'Subcampeonas del Americano 🏆 la próxima es nuestra', likes: 31, fuegos: 9, com: 7, esFoto: true },
+        { id: 'p3', g: 'juan', meta: 'ayer', img: 'img/raquetas.svg', texto: 'Raquetas nuevas, mismas excusas 😂', likes: 18, fuegos: 2, com: 5, esFoto: true }
+      ],
+      partidos: [
+        { id: 'p4', g: 'juan', meta: 'Liga La 70 · ayer', texto: 'Qué partidazo, parce. El tercer set fue de infarto 🔥', likes: 9, fuegos: 6, com: 2, esMarcador: true, torneo: 'Liga La 70 · 4ª', filas: [{ pareja: 'Juan · Demo', peso: 900, sets: [6, 6] }, { pareja: 'Andrés · Caro', peso: 600, sets: [3, 2] }] },
+        { id: 'p5', g: 'andres', meta: 'Cancha 93 · 10 oct', texto: 'Revancha pendiente 😬', likes: 4, fuegos: 1, com: 6, esMarcador: true, torneo: 'Amistoso', filas: [{ pareja: 'Andrés · Pipe', peso: 900, sets: [6, 7] }, { pareja: 'Caro · Lina', peso: 600, sets: [4, 5] }] }
+      ],
+      actividad: [
+        { id: 'p6', g: 'caro', meta: 'hace 1 h', texto: 'Se inscribió al Americano nocturno La 70 🏆', likes: 6, fuegos: 0, com: 1 },
+        { id: 'p7', g: 'andres', meta: 'hace 3 h', texto: 'Subió 4 puestos en el ranking nacional 📈', likes: 11, fuegos: 3, com: 2 },
+        { id: 'p8', g: 'vale', meta: 'ayer', texto: 'Ahora es pareja de juego de Juan Pérez 🤝', likes: 8, fuegos: 0, com: 0 }
+      ]
+    };
+    const maxS = (filas, i) => Math.max(...filas.map((f) => f.sets[i]));
+    const posts = postsAll[s.feed].map((p) => ({
+      ...p, autor: G[p.g].n, i: G[p.g].i, c: G[p.g].c, esFoto: !!p.esFoto, esMarcador: !!p.esMarcador,
+      filas: (p.filas || []).map((f) => ({ ...f, sets: f.sets.map((v, i) => ({ v, op: v === maxS(p.filas, i) ? 1 : 0.45 })) })),
+      likes: p.likes + (s.likes[p.id] ? 1 : 0), fuegos: p.fuegos + (s.fuegos[p.id] ? 1 : 0),
+      likeBg: s.likes[p.id] ? 'var(--accs)' : 'var(--sub)', fuegoBg: s.fuegos[p.id] ? 'var(--accs)' : 'var(--sub)',
+      like: () => this.setState((x) => ({ likes: { ...x.likes, [p.id]: !x.likes[p.id] } })),
+      fuego: () => this.setState((x) => ({ fuegos: { ...x.fuegos, [p.id]: !x.fuegos[p.id] } }))
+    }));
+
+    const pagoMonto = s.pago ? s.pago.monto : 0;
+    const falta = s.pago && s.pago.tipo !== 'recarga' && s.metodo === 'saldo' && s.saldo < pagoMonto;
+    const metodos = [
+      { k: 'saldo', sigla: 'Q', n: 'Saldo Quilombo', s: 'Disponible ' + $(s.saldo), ic: '#0e1b33' },
+      { k: 'nequi', sigla: 'N', n: 'Nequi', s: 'Te llega la notificación', ic: '#3346a8' },
+      { k: 'pse', sigla: 'PSE', n: 'PSE', s: 'Débito desde tu banco', ic: '#1e7fd0' },
+      { k: 'tarjeta', sigla: '💳', n: 'Tarjeta •••• 4242', s: 'Visa', ic: '#5b6478' }
+    ].filter((m) => !(s.pago && s.pago.tipo === 'recarga' && m.k === 'saldo')).map((m, i) => ({
+      ...m, sep: sep(i), bg: s.metodo === m.k ? 'var(--accs)' : 'transparent', radio: s.metodo === m.k ? 'var(--acc)' : 'var(--borde)', punto: s.metodo === m.k ? 'var(--acc)' : 'transparent',
+      subC: m.k === 'saldo' && falta ? '#d42a3a' : 'var(--tx2)', elegir: () => this.setState({ metodo: m.k })
+    }));
+
+    const ptPartes = (r.partes || []).map((p) => ({ ...G[p.k], n: G[p.k].corto, montoTxt: $(p.monto), estado: p.estado === 'pagada' ? (p.cubierta ? '✓ La cubriste tú' : '✓ Pagada') : '⏳ Pendiente', ec: p.estado === 'pagada' ? 'var(--ok)' : '#a86b00', cubrible: p.estado !== 'pagada' && p.k !== 'yo', cubrir: () => this.cubrir(p.k) }));
+    const ESTADOJ = { yo: ['✓', 1], juan: ['✓', 1], caro: ['❔', 0.55], vale: ['✓', 1], andres: ['✓', 1] };
+
+    const totalPedido = CARTA.reduce((a, p) => a + (s.pedido[p.id] || 0) * p.p, 0);
+    const resFilas = [
+      { pareja: 'Demo · Juan', peso: 900, caras: [G.yo, G.juan], sets: [6, 3, 7] },
+      { pareja: 'Andrés · Caro', peso: 600, caras: [G.andres, G.caro], sets: [4, 6, 5] }
+    ].map((f, fi, all) => ({ ...f, sets: f.sets.map((v, i) => ({ v, c: v > all[1 - fi].sets[i] ? 'var(--accd)' : 'rgba(255,255,255,.5)' })) }));
+    const BAN = {
+      pendiente: ['⏳', 'Vale cuando los 4 confirmen', 'Faltan Tú y Juan', '#a86b00'],
+      confirmado: ['⏳', 'Vale cuando los 4 confirmen', 'Falta Juan', '#a86b00'],
+      valido: ['✓', 'Válido · +19 pts', 'Ya cuenta para el ranking nacional', '#18895b'],
+      disputa: ['⚖️', 'En disputa · lo resuelve el club', 'Pádel Club La 70 lo revisa', '#e8475b']
+    }[s.resEstado];
+    const conf = (k, ok, ec) => ({ ...G[k], ec, e: ok });
+    const confs = [
+      conf('andres', '✓ Lo propuso', 'var(--ok)'), conf('caro', '✓ Confirmó', 'var(--ok)'),
+      s.resEstado === 'pendiente' ? conf('yo', '⏳ Falta', '#a86b00') : s.resEstado === 'disputa' ? conf('yo', '✖ No está de acuerdo', '#d42a3a') : conf('yo', '✓ Confirmó', 'var(--ok)'),
+      s.juanConf ? conf('juan', '✓ Confirmó', 'var(--ok)') : conf('juan', '⏳ Falta', '#a86b00')
+    ].map((c, i) => ({ ...c, n: c.n, sep: sep(i) }));
+
+    const chats = [
+      { k: 'juan', n: 'Juan Pérez', i: 'JP', c: '#1e7fd0', hora: '10:58', n2: 2 },
+      { k: 'grupo', n: 'Los del jueves 🎾', i: '4', c: '#0e1b33', hora: '10:31', n2: 0 },
+      { k: 'andres', n: 'Andrés Gómez', i: 'AG', c: '#c2410c', hora: '10:42', n2: 0 },
+      { k: 'caro', n: 'Caro López', i: 'CL', c: '#e8475b', hora: 'ayer', n2: 0 },
+      { k: 'vale', n: 'Vale Ríos', i: 'VR', c: '#18895b', hora: 'ayer', n2: 0 }
+    ].map((c, i) => { const m = s.msgs[c.k]; const u = m[m.length - 1]; return { ...c, ultimo: (u.y ? 'Tú: ' : '') + u.t, sinLeer: c.n2 > 0 && !s.vistas['c' + c.k], peso: c.n2 > 0 && !s.vistas['c' + c.k] ? 800 : 500, sep: sep(i), abrir: () => this.setState((x) => ({ ov: 'chat', chatCon: c, vistas: { ...x.vistas, ['c' + c.k]: true } })) }; });
+    const sala = s.chatCon ? { ...s.chatCon, msgs: s.msgs[s.chatCon.k].map((m) => ({ t: m.t, lado: m.y ? 'flex-end' : 'flex-start', bg: m.y ? 'var(--acc)' : 'var(--card)', tx: m.y ? '#fff' : 'var(--tx)', radio: m.y ? '18px 18px 4px 18px' : '18px 18px 18px 4px' })) } : { n: '', i: '', c: '', msgs: [] };
+    const enviar = () => {
+      const t = s.borrador.trim(); if (!t || !s.chatCon) return; const k = s.chatCon.k;
+      this.setState((x) => ({ borrador: '', msgs: { ...x.msgs, [k]: [...x.msgs[k], { y: true, t }] } }));
+      setTimeout(() => this.setState((x) => ({ msgs: { ...x.msgs, [k]: [...x.msgs[k], { y: false, t: ['¡De una! 🙌', 'Jajaja dale', 'Hágale, parce', '🔥🔥'][x.msgs[k].length % 4] }] } })), 1400);
+    };
+
+    const tabsDef = [['social', 'Social'], ['jugar', 'Jugar'], ['chat', 'Chat'], ['perfil', 'Perfil']].map(([k, n]) => ({ n, d: ICON[k], c: s.tab === k ? 'var(--acct)' : 'var(--tx2)', w: s.tab === k ? '36px' : '0px', ir: tab(k), globo: k === 'chat' && !s.vistas.cjuan }));
+    const hojaOpen = !!s.hoja;
+    const sel = s.sel || { club: '', dir: '', hc: '', ampm: '', fin: '', precio: 0 };
+    const accDark = s.acento === 'noche';
+
+    return {
+      tema: s.tema, acento: s.acento, temaLabel: s.tema === 'tiza' ? '☾ Modo oscuro' : '☀︎ Modo claro', qTx: accDark ? '#0e1b33' : '#fff',
+      toggleTema: () => this.setState((x) => ({ tema: x.tema === 'tiza' ? 'noche' : 'tiza' })),
+      reiniciar: () => this.setState({ ...inicial(this.props), acento: s.acento, qr: s.qr }),
+      acentos: Object.entries(ACENTOS).map(([k, a]) => ({ ...a, borde: s.acento === k ? '2px solid #0e1b33' : '1px solid rgba(14,27,51,.1)', elegir: () => this.setState({ acento: k }) })),
+      flujos: [
+        { n: 1, t: 'Reservar y pagar', s: 'Jugar → canchas libres', ir: () => { this.setState({ tab: 'jugar', ov: null, hoja: null }); setTimeout(() => { const el = this.canchasRef.current, sc = this.scrollRef.current; if (el && sc) sc.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' }); }, 80); } },
+        { n: 2, t: 'Pedir con la tarjeta', s: 'El botón Q, al centro de la barra', ir: ov('tarjeta') },
+        { n: 3, t: 'Mitad y mitad', s: 'Dividir la cancha de hoy con Juan', ir: () => this.setState({ ov: 'partido', activa: 'r1', hoja: this.reserva('r1').partes ? null : 'dividir', modoDiv: 'mitad' }) },
+        { n: 4, t: 'Torneo · Yo voy', s: 'Americano nocturno La 70', ir: () => { this.setState({ tab: 'jugar', ov: null }); this.abrirPago(60000, 'Inscripción · Americano nocturno La 70', 'torneo', 'am'); } },
+        { n: 5, t: 'Resultado sin trampa', s: 'Los 4 confirman y el ranking se mueve', ir: ov('resultado') }
+      ],
+      scrollRef: this.scrollRef, canchasRef: this.canchasRef, chatRef: this.chatRef,
+      isSocial: s.tab === 'social', isJugar: s.tab === 'jugar', isChat: s.tab === 'chat', isPerfil: s.tab === 'perfil',
+      ovTarjeta: s.ov === 'tarjeta', ovPartido: s.ov === 'partido', ovResultado: s.ov === 'resultado', ovRanking: s.ov === 'ranking', ovSaldo: s.ov === 'saldo', ovChat: s.ov === 'chat',
+      cerrarOv: () => this.setState({ ov: null, hoja: null }),
+      statusC: darkStatus ? '#fff' : '#0e1b33', homeC: darkStatus ? 'rgba(255,255,255,.7)' : 'rgba(14,27,51,.85)',
+      barraOp: s.ov === 'chat' ? 0 : 1, barraT: s.ov === 'chat' ? 'translateY(100%)' : 'none',
+      tabsIzq: tabsDef.slice(0, 2), tabsDer: tabsDef.slice(2),
+      irChat: tab('chat'), abrirTarjeta: ov('tarjeta'), abrirRanking: ov('ranking'), abrirSaldo: ov('saldo'), abrirResultado: ov('resultado'),
+      abrirHero: () => this.setState({ ov: 'partido', activa: 'r1' }),
+      abrirFoto: () => this.avisar('Cámara lista 📸', 'Sube la foto de tu partido'),
+      abrirBuscar: () => this.avisar('Buscar jugadores', 'Por nombre, @usuario o club'),
+      abrirCalendario: () => this.avisar('Mi calendario', 'Hoy 7:30 p. m. · Jue 15 · Vie 16 Americano'),
+      abrirClases: () => this.avisar('Clases con profe', 'Diego, Mónica, Carla y Juanes tienen horarios'),
+      irCanchas: () => { const el = this.canchasRef.current, sc = this.scrollRef.current; if (el && sc) sc.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' }); },
+
+      ticker: [...['Juan confirmó para hoy 7:30 p. m.', 'Caro subió una foto en La 70', 'Americano nocturno: quedan 6 cupos', 'Andrés propuso 6-4 3-6 7-5', 'Vale te agregó como pareja de juego', 'Cancha 2 libre mañana 6:00 p. m.'], ...['Juan confirmó para hoy 7:30 p. m.', 'Caro subió una foto en La 70', 'Americano nocturno: quedan 6 cupos', 'Andrés propuso 6-4 3-6 7-5', 'Vale te agregó como pareja de juego', 'Cancha 2 libre mañana 6:00 p. m.']],
+      historias: ['juan', 'caro', 'andres', 'vale'].map((k) => ({ ...G[k], aro: s.vistas[k] ? 'var(--tx3)' : 'conic-gradient(var(--acc), #1e7fd0, #e8475b, #b98500, var(--acc))', ver: () => { this.setState((x) => ({ vistas: { ...x.vistas, [k]: true } })); this.avisar('Historia de ' + G[k].corto, 'Lo nuevo de las últimas 24 h'); } })),
+      hero: { dia: s.reservas[s.reservas.length - 1] && r.dia, hora: r.hora + ' ' + r.ampm, club: r.club, cancha: r.cancha, caras: r.gente.map((k) => G[k]), chip: r.estado === 'pagada' ? '✓ PAGADA' : '⏳ ' + mm + ' para pagar', chipBg: r.estado === 'pagada' ? '#18895b' : 'rgba(255,255,255,.14)' },
+      hayAvisos: s.resEstado === 'pendiente' || s.avisoJuan || s.solicitud,
+      nAvisos: [s.resEstado === 'pendiente', s.avisoJuan, s.solicitud].filter(Boolean).length,
+      avisoResultado: s.resEstado === 'pendiente', avisoJuan: s.avisoJuan, avisoSolicitud: s.solicitud,
+      pagarJuan: () => this.abrirPago(60000, 'Tu parte · cancha con Juan', 'parte'),
+      aceptarVale: () => { this.setState({ solicitud: false }); this.avisar('¡Conectados!', 'Vale ya es tu pareja de juego'); },
+      rechazarVale: () => this.setState({ solicitud: false }),
+      miPos: yo.pos, misPtsTxt: yo.pts.toLocaleString('es-CO'), miVD: yo.v + '–' + yo.d, miPct: pct, miRacha: valido ? 4 : 3,
+      forma: (valido ? ['G', 'G', 'P', 'G', 'G', 'G'] : ['G', 'P', 'G', 'P', 'G', 'G']).map((x, i) => ({ h: (x === 'G' ? 30 + i * 3 : 14) + 'px', c: x === 'G' ? 'var(--acc)' : 'var(--sub)' })),
+      seccionesFeed: [['fotos', '📸 Fotos'], ['partidos', '🎾 Partidos'], ['actividad', '💬 Actividad']].map(([k, t]) => ({ t, bg: s.feed === k ? 'var(--card)' : 'transparent', sombra: s.feed === k ? '0 2px 8px rgba(14,27,51,.12)' : 'none', elegir: () => this.setState({ feed: k }) })),
+      posts,
+
+      saldoTxt: $(s.saldo),
+      reservasUI: s.reservas.map((x) => { const c = chip(x); return { ...x, horaCorta: x.hora, precioTxt: $(x.precio), chip: c.t, chipBg: c.bg, lado: x.estado === 'pagada' ? '#18895b' : '#0e1b33', nota: x.estado === 'pagada' ? 'Código ' + x.codigo + (x.partes ? ' · dividida' : '') : 'Paga antes de las 4:30 p. m. · quedan ' + mm, notaC: x.estado === 'pagada' ? 'var(--ok)' : 'var(--acct)', abrir: () => this.setState({ ov: 'partido', activa: x.id }) }; }),
+      hayInvitacion: true, invPendiente: !s.inv, invRespondida: !!s.inv, invTxt: s.inv === 'voy' ? '✓ Vas · le avisamos a Juan' : 'Le dijiste a Juan que no puedes',
+      invVoy: () => { this.setState({ inv: 'voy' }); this.avisar('¡Listo, vas!', 'Le avisamos a Juan'); }, invNo: () => this.setState({ inv: 'no' }),
+      nLibres: libres.length,
+      ciudadesUI: Object.keys(CLUBES).map((n) => ({ n, bg: s.ciudad === n ? 'var(--acc)' : 'var(--sub)', tx: s.ciudad === n ? (accDark && s.tema === 'noche' ? '#0e1b33' : '#fff') : 'var(--tx)', elegir: () => this.setState({ ciudad: n }) })),
+      diasUI: DIAS.map((d, i) => ({ arriba: i === 0 ? 'Hoy' : i === 1 ? 'Mañ' : d[0], abajo: d[1], bg: s.dia === i ? '#0e1b33' : 'var(--card)', tx: s.dia === i ? '#fff' : 'var(--tx)', borde: s.dia === i ? '#0e1b33' : 'var(--line)', elegir: () => this.setState({ dia: i }) })),
+      libres: libres.map((f) => ({ ...f, precioTxt: $(f.precio), reservar: () => this.setState({ hoja: 'reservar', sel: { ...f, diaLargo: DIAS[s.dia][2].toUpperCase(), hora: f.hc + ' ' + f.ampm }, tipoCancha: CANCHAS.indexOf(f.cancha) % 3, con: ['juan'] }) })),
+      torneosUI: TORNEOS.map((t) => ({ ...t, precioTxt: $(t.p), cupos: t.cupos - (s.inscrito[t.id] ? 1 : 0), btn: s.inscrito[t.id] ? '✓ Inscrito' : 'Yo voy', btnTx: t.bg, yoVoy: () => { if (!s.inscrito[t.id]) this.abrirPago(t.p, 'Inscripción · ' + t.n, 'torneo', t.id); } })),
+
+      chats, sala, borrador: s.borrador, escribir: (e) => this.setState({ borrador: e.target.value }), enviarMsg: enviar, teclaChat: (e) => { if (e.key === 'Enter') enviar(); },
+
+      statsPerfil: [{ v: yo.pts.toLocaleString('es-CO'), l: 'Puntos' }, { v: '#' + yo.pos, l: 'Nacional' }, { v: yo.v + '–' + yo.d, l: 'V–D' }, { v: '🔥' + (valido ? 4 : 3), l: 'Racha' }].map((x, i) => ({ ...x, sep: i ? '1px solid var(--line)' : '0' })),
+      ultimos: [...(valido ? [{ r: 'G', vs: 'Andrés · Caro', sets: '6-4 3-6 7-5' }] : []), { r: 'G', vs: 'Andrés · Caro', sets: '6-3 6-2' }, { r: 'P', vs: 'Pipe · Lina', sets: '4-6 5-7' }, { r: 'G', vs: 'Vale · Caro', sets: '6-4 6-4' }].slice(0, 4).map((u) => ({ ...u, c: u.r === 'G' ? 'var(--ok)' : '#e8475b' })),
+
+      hayQR: !!s.qr, sinQR: !s.qr, qrSrc: s.qr || '',
+      topeTxt: s.tope ? 'Tope ' + $(s.tope) : 'Poner tope',
+      ponerTope: () => { const t = s.tope ? null : 80000; this.setState({ tope: t }); this.avisar(t ? 'Tope de ' + $(t) + ' por día' : 'Quitaste el tope', t ? 'El mesero no puede cargar más' : ''); },
+      dividirConsumo: () => this.avisar('Cobro enviado a Juan', 'Mitad de lo consumido hoy'),
+      consumosUI: s.consumos.map((c, i) => ({ ...c, totalTxt: $(c.total), sep: i ? '1px solid rgba(220,230,255,.08)' : '0' })),
+      abrirPedir: () => this.setState({ hoja: 'pedir', pedido: {} }),
+
+      reloj: mm,
+      pt: {
+        banda: r.estado === 'pagada' ? '#18895b' : 'var(--acc)', estado: r.estado === 'pagada' ? '✓ Pagada' : '⏳ Apartada', estadoSub: r.estado === 'pagada' ? 'Reserva confirmada' : 'Tienes hasta las 4:30 p. m.',
+        apartada: r.estado !== 'pagada', codigo: r.codigo, precioTxt: $(r.precio), sinPartes: !r.partes,
+        datos: [{ l: 'Club', v: r.club }, { l: 'Dirección', v: r.dir }, { l: 'Fecha', v: r.dia + ' · oct 2026' }, { l: 'Hora', v: r.hora + ' ' + r.ampm + ' – ' + r.fin }, { l: 'Cancha', v: r.cancha }, { l: 'Precio', v: $(r.precio) }],
+        jugadores: r.gente.map((k) => ({ ...G[k], n: G[k].corto, e: ESTADOJ[k][0], op: ESTADOJ[k][1] })), partes: ptPartes
+      },
+      pagarReserva: () => this.abrirPago(r.precio, 'Cancha · ' + r.club, 'reserva', r.id),
+      abrirDividir: () => this.setState({ hoja: 'dividir' }),
+
+      res: { icono: BAN[0], banner: BAN[1], bannerSub: BAN[2], bannerBg: BAN[3], filas: resFilas, confs, puedeConfirmar: s.resEstado === 'pendiente', valido },
+      disputarRes: () => { this.setState({ resEstado: 'disputa' }); this.avisar('Quedó en disputa', 'Lo revisa Pádel Club La 70'); },
+      confirmarRes: this.confirmarRes,
+
+      podio: [rank0(1), rank0(0), rank0(2)].map((p) => p),
+      filtrosRank: ['Todos', '4ª', 'Medellín', 'Bogotá', 'Cali'].map((t) => ({ t, bg: s.rankFiltro === t ? '#0e1b33' : 'var(--sub)', tx: s.rankFiltro === t ? '#fff' : 'var(--tx)', elegir: () => this.setState({ rankFiltro: t }) })),
+      tabla: rank.filter((x) => s.rankFiltro === 'Todos' || x.cat === s.rankFiltro || x.ciu === s.rankFiltro).map((x, i) => ({ ...x, pos: x.pos, pts: x.pts.toLocaleString('es-CO'), vd: x.v + '–' + x.d, sep: sep(i), bg: x.k === 'yo' ? 'var(--accs)' : 'transparent', n: x.k === 'yo' ? 'Tú · Demo Jugador' : x.n, delta: x.dl ? (x.dl > 0 ? '▲ +' + x.dl : '▼ ' + x.dl) : '—', deltaC: x.dl > 0 ? 'var(--ok)' : x.dl < 0 ? '#e8475b' : 'var(--tx3)' })),
+
+      montosRecarga: [50000, 100000, 200000, 500000].map((m) => ({ t: (m / 1000) + ' mil', bg: s.recarga === m ? 'var(--accs)' : 'var(--card)', borde: s.recarga === m ? 'var(--acc)' : 'var(--line)', tx: 'var(--tx)', elegir: () => this.setState({ recarga: m }) })),
+      recargaTxt: $(s.recarga), recargar: () => this.abrirPago(s.recarga, 'Recarga de saldo', 'recarga'),
+      movsUI: s.movs.slice(0, 6).map((m, i) => ({ ...m, v: (m.v > 0 ? '+ ' : '− ') + $(Math.abs(m.v)), c: m.v > 0 ? 'var(--ok)' : 'var(--tx)', sep: sep(i) })),
+
+      hojaPE: hojaOpen ? 'auto' : 'none', hojaOp: hojaOpen ? 1 : 0, hojaT: hojaOpen ? 'translateY(0)' : 'translateY(105%)',
+      cerrarHoja: () => this.setState({ hoja: null }),
+      hReservar: s.hoja === 'reservar', hPagar: s.hoja === 'pagar', hDividir: s.hoja === 'dividir', hPedir: s.hoja === 'pedir',
+      sel: { ...sel, precioTxt: $(sel.precio) },
+      tiposCancha: ['Techada', 'Cristal', 'Panorámica'].map((n, i) => ({ n, bg: s.tipoCancha === i ? 'var(--accs)' : 'transparent', borde: s.tipoCancha === i ? 'var(--acc)' : 'var(--line)', elegir: () => this.setState({ tipoCancha: i }) })),
+      conQuien: ['juan', 'caro', 'andres', 'vale'].map((k) => { const on = s.con.includes(k); return { ...G[k], aro: on ? '0 0 0 3px var(--card), 0 0 0 5px var(--acc)' : 'none', op: on ? 1 : 0.45, toggle: () => this.setState((x) => ({ con: on ? x.con.filter((y) => y !== k) : [...x.con, k] })) }; }),
+      reservarYPagar: () => { const f = s.sel; const nueva = this.nuevaReserva(f); this.abrirPago(f.precio, 'Cancha · ' + f.club, 'nueva', nueva); },
+      apartar: () => { const n = this.nuevaReserva(s.sel); this.setState((x) => ({ hoja: null, reservas: [n, ...x.reservas], activa: n.id })); this.avisar('¡Cancha apartada! 🎾', 'Tienes 2 horas para pagarla'); },
+
+      pago: s.pago ? { ...s.pago, montoTxt: $(s.pago.monto), falta, faltaTxt: $(pagoMonto - s.saldo), op: falta ? 0.4 : 1, metodoTxt: this.metodoNombre(s.metodo), ref: s.pago.refPago || '' } : { concepto: '', montoTxt: '', falta: false, op: 1 },
+      pagoElegir: s.etapa === 'elegir', pagoProcesando: s.etapa === 'procesando', pagoOk: s.etapa === 'ok',
+      metodos, confirmarPago: this.confirmarPago,
+      recargaRapida: () => { this.setState((x) => ({ saldo: x.saldo + 200000, movs: [{ e: '＋', t: 'Recarga por Nequi', s: 'Hoy', v: 200000 }, ...x.movs] })); this.avisar('Recargaste $200.000', 'Por Nequi · ya puedes pagar'); },
+
+      modosDiv: [['mitad', 'Mitad y mitad'], ['todos', 'Entre los 4'], ['montos', 'Por montos']].map(([k, n]) => ({ n, bg: s.modoDiv === k ? 'var(--accs)' : 'transparent', borde: s.modoDiv === k ? 'var(--acc)' : 'var(--line)', elegir: () => this.setState({ modoDiv: k }) })),
+      previewDiv: this.partesDe(r, s.modoDiv).map((p, i) => ({ ...G[p.k], n: p.k === 'yo' ? 'Tú (pagas ya)' : G[p.k].n, montoTxt: $(p.monto), sep: sep(i) })),
+      confirmarDividir: this.confirmarDividir,
+
+      carta: CARTA.map((p, i) => ({ ...p, precioTxt: $(p.p), q: s.pedido[p.id] || 0, opMenos: s.pedido[p.id] ? 1 : 0.35, sep: sep(i), mas: () => this.setState((x) => ({ pedido: { ...x.pedido, [p.id]: (x.pedido[p.id] || 0) + 1 } })), menos: () => this.setState((x) => ({ pedido: { ...x.pedido, [p.id]: Math.max(0, (x.pedido[p.id] || 0) - 1) } })) })),
+      pedidoTxt: $(totalPedido), pedidoVacio: totalPedido === 0, pedidoOp: totalPedido === 0 ? 0.4 : 1,
+      pagarPedido: () => { const items = CARTA.filter((p) => s.pedido[p.id]).map((p) => ({ n: s.pedido[p.id] + ' × ' + p.n, e: p.e, total: s.pedido[p.id] * p.p, estado: 'Preparando' })); this.abrirPago(totalPedido, 'Pedido · Bar La 70', 'pedido', items); },
+
+      hayToast: !!s.toast, toast: s.toast || { t: '', s: '' }
+    };
+    function rank0(i) {
+      const top = [{ n: 'Mateo Restrepo', i: 'MR', c: '#3346a8', pts: '2.940' }, { n: 'Sofía Vélez', i: 'SV', c: '#e8475b', pts: '2.875' }, { n: 'Tomás Arango', i: 'TA', c: '#18895b', pts: '2.790' }][i];
+      return { ...top, pos: i + 1, h: ['120px', '92px', '72px'][i], av: i === 0 ? '62px' : '52px', bg: ['#b98500', '#5b6478', '#c2410c'][i], aro: ['#b98500', '#9aa1b0', '#c2410c'][i] };
+    }
+  }
+  nuevaReserva(f) {
+    const cod = Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
+    return { id: 'n' + Date.now(), club: f.club, dir: f.dir, cancha: ['Cancha 1 · techada', 'Cancha 3 · cristal', 'Cancha 2 · panorámica'][this.state.tipoCancha], dia: DIAS[this.state.dia][2], hora: f.hc, ampm: f.ampm, fin: f.fin, precio: f.precio, estado: 'apartada', codigo: cod, gente: ['yo', ...this.state.con].slice(0, 4), partes: null };
+  }
+}
+</script>
+</body>
+</html>
